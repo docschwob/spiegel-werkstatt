@@ -1,0 +1,2152 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spiegel-Werkstatt</title>
+<meta name="description" content="Digitale Werkstatt zur Achsensymmetrie für die Grundschule: Kästchen färben, Figuren spannen, spiegeln, falten, festhalten.">
+<meta name="author" content="Dr. Simeon Schwob">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F6F8B'/%3E%3Cpath d='M16 4v24' stroke='%23FF6B7D' stroke-width='2.5'/%3E%3Cpath d='M13 9L5 23h8z' fill='%23fff'/%3E%3Cpath d='M19 9l8 14h-8z' fill='none' stroke='%23fff' stroke-width='1.8' stroke-dasharray='3 2'/%3E%3C/svg%3E">
+<style>
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+
+:root {
+  --bg: #EDF1F4; --panel: #FFFFFF; --paper: #FFFFFF; --grid: #CBDCE8; --peg: #8AA3B6;
+  --ink: #1D2733; --muted: #5A6675; --line: #D3DBE2; --accent: #1F6F8B; --accent-ink: #FFFFFF; --soft: #DCEEF4;
+  --axis: #D7263D; --mark: #F0641E; --hint: #7B4FD6; --ok: #1E8A5A; --nok: #B8570F;
+  --shadow: 0 6px 22px rgba(29, 39, 51, .13);
+  --tool: 66px; --gap: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181F; --panel: #1A222B; --paper: #1E2833; --grid: #2E3D4B; --peg: #5E7385;
+    --ink: #E6EDF3; --muted: #9DABB8; --line: #313F4D; --accent: #4FB3D1; --accent-ink: #0D1B22; --soft: #1B3540;
+    --axis: #F2475D; --mark: #FF8A4C; --hint: #B08CFA; --ok: #4CC38A; --nok: #F0A15E; --shadow: 0 6px 22px rgba(0, 0, 0, .45); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181F; --panel: #1A222B; --paper: #1E2833; --grid: #2E3D4B; --peg: #5E7385;
+  --ink: #E6EDF3; --muted: #9DABB8; --line: #313F4D; --accent: #4FB3D1; --accent-ink: #0D1B22; --soft: #1B3540;
+  --axis: #F2475D; --mark: #FF8A4C; --hint: #B08CFA; --ok: #4CC38A; --nok: #F0A15E; --shadow: 0 6px 22px rgba(0, 0, 0, .45); color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.view { height: 100%; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Atkinson Hyperlegible", "Verdana", "Segoe UI", sans-serif; font-size: 16px; line-height: 1.45;
+  display: flex; flex-direction: column; padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .45; cursor: default; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.02rem; }
+.muted { color: var(--muted); } .small { font-size: .88rem; }
+svg { flex: none; }
+
+/* Kopf */
+.top { display: flex; align-items: center; gap: 14px; padding: 0 12px; min-height: 58px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; white-space: nowrap; }
+.brand svg { width: 34px; height: 34px; }
+.tabs { display: flex; gap: 2px; flex: 1; align-self: stretch; }
+.tabs button, .topr button { border: 0; background: none; padding: 0 14px; min-height: 48px; font-size: 1.02rem; color: var(--muted); position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.tabs button[aria-current="page"], .topr button[aria-current="page"] { color: var(--ink); font-weight: 700; }
+.tabs button[aria-current="page"]::after, .topr button[aria-current="page"]::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 0; height: 4px; border-radius: 4px 4px 0 0; background: var(--accent); }
+.topr { display: flex; align-items: stretch; align-self: stretch; }
+.topr button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--soft); color: var(--ink); font-size: .78rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+#banner { background: #FFF1D6; color: #5A3B00; padding: 8px 16px; font-size: .95rem; border-bottom: 1px solid #E8C98A; }
+#main { flex: 1; min-height: 0; }
+
+/* Werkzeugleiste */
+.ws { display: grid; grid-template-columns: calc(var(--tool) + 20px) 1fr; height: 100%; min-height: 0; }
+.tools { display: flex; flex-direction: column; gap: 10px; padding: 8px 10px; background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; }
+.grp { display: flex; flex-direction: column; gap: 2px; }
+.grp + .grp { padding-top: 10px; border-top: 1px solid var(--line); }
+.tool { width: var(--tool); min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 5px 2px;
+  border: 2px solid transparent; border-radius: 14px; background: none; font-size: .78rem; line-height: 1.1; text-align: center; position: relative; }
+.tool svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tool:hover:not(:disabled) { background: var(--bg); }
+.tool[aria-pressed="true"] { background: var(--soft); border-color: var(--accent); font-weight: 700; }
+.tool.toggle::after { content: ""; position: absolute; top: 6px; right: 8px; width: 9px; height: 9px; border-radius: 50%; border: 1.6px solid var(--muted); }
+.tool.toggle[aria-pressed="true"]::after { background: var(--accent); border-color: var(--accent); }
+.sw { width: 44px; height: 44px; border: 0; background: none; padding: 0; display: grid; place-items: center; border-radius: 50%; }
+.sw::before { content: ""; width: 26px; height: 26px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--line); }
+.sw[aria-pressed="true"]::before { box-shadow: 0 0 0 3px var(--panel), 0 0 0 6px var(--ink); }
+
+.stage { position: relative; min-width: 0; min-height: 0; padding: 12px; display: flex; }
+.boardhost { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.btop { display: flex; align-items: center; gap: 12px; min-height: 48px; flex-wrap: wrap; }
+.bslot:empty { display: none; }
+.bslot .swatches { display: flex; gap: 2px; padding: 0; border: 0; background: var(--panel); border-radius: 999px; box-shadow: 0 0 0 1px var(--line); }
+.bwrap { position: relative; flex: 1; min-height: 0; }
+svg.board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
+.draftbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; color: var(--muted); }
+.draftbar:empty { display: none; }
+.float { position: absolute; right: 26px; bottom: 26px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.float .btn:not(.primary) { box-shadow: var(--shadow); }
+.vorher { display: inline-flex; align-items: center; gap: 6px; background: var(--soft); padding: 8px 12px; border-radius: 12px; }
+.vorher svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.panel { position: absolute; left: 26px; bottom: 26px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow); max-width: 320px; z-index: 3; }
+.panel p { margin: 6px 0 0; }
+.sw-row { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.sw-row input, .check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+
+/* Geometrie */
+.paper { fill: var(--paper); stroke: var(--line); stroke-width: 0.03; }
+.grid { stroke: var(--grid); stroke-width: 1.2; fill: none; }
+.pegs { stroke: var(--peg); stroke-linecap: round; }
+.cell { fill: var(--c); stroke: color-mix(in srgb, var(--c) 70%, #000); stroke-width: .02; }
+.cell.locked { fill: color-mix(in srgb, var(--c) 88%, #fff); }
+.cell.img { fill: color-mix(in srgb, var(--c) 22%, transparent); stroke: var(--c); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.cell.flying { fill: color-mix(in srgb, var(--c) 55%, transparent); stroke: var(--ink); stroke-width: 1.5; }
+.hint-dot { fill: #fff; stroke: var(--hint); stroke-width: .05; }
+.fig { fill: color-mix(in srgb, var(--c) 20%, transparent); stroke: var(--c); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.fig.open { fill: none; }
+.fig.locked { fill: color-mix(in srgb, var(--c) 28%, transparent); }
+.fig.sel { stroke-width: 5; }
+.fig.img { fill: color-mix(in srgb, var(--c) 8%, transparent); stroke-dasharray: 10 7; stroke-width: 2.5; }
+.fig.flying { fill: color-mix(in srgb, var(--c) 35%, transparent); stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 6 4; }
+.vtx { fill: var(--paper); stroke: var(--c); stroke-width: 2.6; }
+.vtx.locked { fill: var(--c); }
+.vtx.img { fill: color-mix(in srgb, var(--c) 30%, var(--paper)); stroke-width: 2; }
+.axis { stroke: var(--axis); stroke-width: 4.5; stroke-linecap: round; }
+.axis.sel { stroke-width: 7; }
+.axis.marked { stroke: var(--mark); stroke-dasharray: 12 8; }
+.axis.preview { opacity: .5; stroke-dasharray: 14 10; }
+.axis-hint { stroke: var(--hint); stroke-width: 4; stroke-dasharray: 14 9; stroke-linecap: round; }
+.handle { fill: var(--axis); stroke: var(--paper); stroke-width: 3; }
+.perp { stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 6 5; }
+.right { fill: none; stroke: var(--muted); stroke-width: 1.4; }
+.connect { stroke: var(--hint); stroke-width: 1.8; stroke-dasharray: 2 6; stroke-linecap: round; }
+.midpt { fill: var(--hint); }
+.pill rect { fill: var(--ink); }
+.pill text { fill: var(--paper); font-weight: 700; text-anchor: middle; dominant-baseline: central; font-family: inherit; }
+.name { fill: var(--ink); font-weight: 700; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; font-family: inherit; pointer-events: none; }
+.mark { fill: none; stroke: var(--mark); stroke-width: 4; }
+.ghost { fill: color-mix(in srgb, var(--hint) 18%, transparent); stroke: var(--hint); stroke-width: 3; stroke-dasharray: 4 3; }
+.draft { fill: none; stroke: var(--c); stroke-width: 3; stroke-dasharray: 8 6; }
+.draft-v { fill: var(--paper); stroke: var(--c); stroke-width: 2.6; }
+.draft-v.close { fill: color-mix(in srgb, var(--c) 25%, var(--paper)); }
+.snapdot { fill: var(--muted); opacity: .5; pointer-events: none; }
+
+/* Knöpfe */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 8px 16px; border-radius: 12px; border: 1.5px solid var(--line);
+  background: var(--panel); font-size: 1rem; white-space: nowrap; }
+.btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.btn.big { min-height: 54px; padding: 10px 22px; font-size: 1.1rem; border-radius: 14px; }
+.btn.sm { min-height: 44px; padding: 4px 12px; font-size: .92rem; }
+.btn.ghost { border-color: transparent; background: none; }
+.btn.danger { background: var(--axis); border-color: var(--axis); color: #fff; }
+.btn[aria-pressed="true"] { background: var(--soft); border-color: var(--accent); }
+.link { border: 0; background: none; text-decoration: underline; color: var(--muted); padding: 0 4px; min-height: 44px; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; background: var(--bg); border-radius: 12px; }
+.seg button { border: 0; background: none; padding: 8px 14px; min-height: 44px; border-radius: 9px; color: var(--muted); }
+.seg button[aria-selected="true"], .seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 8px 16px; min-height: 44px; }
+.chip.st { min-height: 0; padding: 2px 10px; font-size: .8rem; font-weight: 700; border-width: 1px; }
+.art-Frage { --sc: #2F6FDE; } .art-Versuch { --sc: #5A6675; } .art-Vermutung { --sc: #B8570F; } .art-Entdeckung { --sc: #1E8A5A; }
+.chip.st { color: var(--sc); border-color: color-mix(in srgb, var(--sc) 45%, transparent); background: color-mix(in srgb, var(--sc) 9%, var(--panel)); }
+.chip[aria-pressed="true"] { background: var(--sc); border-color: var(--sc); color: #fff; font-weight: 700; }
+
+/* Aufgaben */
+.tasks { display: grid; grid-template-columns: 250px 1fr; height: 100%; min-height: 0; }
+.tasklist { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 8px 10px 20px; }
+.tgrp h3 { font-size: .86rem; color: var(--muted); margin: 14px 8px 4px; }
+.titem { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 10px; min-height: 48px; }
+.titem small { display: block; color: var(--muted); font-size: .8rem; }
+.titem:hover { background: var(--bg); }
+.titem[aria-current="true"] { background: var(--soft); font-weight: 700; }
+.dots { display: inline-flex; gap: 3px; flex: none; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line); }
+.dots i.on { background: var(--ok); border-color: var(--ok); }
+.tselect { display: none; }
+.taskmain { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; min-width: 0; }
+.taskhead { padding: 10px 18px 0; }
+.leiter { list-style: none; display: flex; gap: 6px; padding: 0; margin: 0; flex-wrap: wrap; }
+.leiter button { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 12px 4px 6px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--panel); font-size: .9rem; }
+.leiter b { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); font-size: .9rem; }
+.leiter button[aria-current="true"] { border-color: var(--accent); background: var(--soft); font-weight: 700; }
+.leiter button[aria-current="true"] b { background: var(--accent); color: var(--accent-ink); }
+.leiter svg { width: 18px; height: 18px; fill: none; stroke: var(--ok); stroke-width: 2.6; }
+.prompt { font-size: 1.3rem; font-weight: 700; margin: 10px 0 0; max-width: 62ch; }
+.ws.inner .tools { background: none; border-right: 0; }
+.checkbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 18px; background: var(--panel); border-top: 1px solid var(--line); }
+.checkbar.is-ok { background: color-mix(in srgb, var(--ok) 12%, var(--panel)); }
+.checkbar.is-nok { background: color-mix(in srgb, var(--nok) 10%, var(--panel)); }
+.fb { flex: 1 1 260px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 54px; }
+.fb p { margin: 0; font-size: 1.1rem; }
+.fb .ok { color: var(--ok); font-weight: 700; display: flex; gap: 6px; align-items: center; font-size: 1.25rem; }
+.fb .ok svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 3; }
+.fb .nok { font-weight: 700; color: var(--nok); font-size: 1.2rem; }
+.fb .detail { flex-basis: 100%; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btn .count { margin-left: 2px; }
+.hilfen { left: auto; right: 26px; bottom: 16px; width: min(360px, calc(100% - 40px)); max-width: none; display: flex; flex-direction: column; gap: 6px; }
+.hilfen[hidden] { display: none; }
+.hbtn { text-align: left; border: 1.5px solid var(--line); background: var(--panel); border-radius: 12px; padding: 8px 12px; min-height: 52px; display: flex; flex-direction: column; }
+.hbtn span { font-size: .86rem; color: var(--muted); }
+.hbtn:hover { border-color: var(--hint); }
+
+/* Dialog */
+#dlg { position: fixed; inset: 0; background: rgba(15, 22, 30, .5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+#dlg[hidden] { display: none; }
+.dlg { background: var(--panel); border-radius: 20px; width: min(680px, 100%); max-height: 100%; overflow: auto; padding: 18px 22px 20px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.dlg-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.dlg-hd .btn svg, .phd .btn svg { width: 22px; height: 22px; }
+.dlg-acts { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; flex: 1; min-width: 0; }
+.field.narrow { flex: 0 1 180px; }
+.row2 { display: flex; gap: 14px; flex-wrap: wrap; }
+.lbl { font-weight: 700; font-size: .92rem; }
+input:not([type]), input[type=text], textarea, select { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--panel); min-height: 44px; }
+textarea { resize: vertical; }
+.check { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 6px; }
+.preview, .kbild { display: flex; align-items: center; gap: 8px; background: var(--paper); }
+.preview { border: 1px solid var(--line); border-radius: 12px; padding: 8px; }
+.preview figure, .kbild figure { margin: 0; flex: 1; min-width: 0; }
+figcaption { text-align: center; font-size: .82rem; color: var(--muted); }
+.preview svg.thumb { width: 100%; height: 210px; display: block; }
+.arrow { color: var(--muted); font-size: 1.4rem; }
+svg.thumb .grid { stroke-width: 1; }
+
+/* Weg */
+.weg-bild svg { width: 100%; height: 260px; display: block; background: var(--paper); border-radius: 12px; border: 1px solid var(--line); }
+.weg-ctrl { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+.weg-ctrl input { flex: 1; accent-color: var(--accent); min-height: 44px; }
+.weg-ctrl .btn svg { width: 20px; height: 20px; }
+.weg-zeit { font-size: .88rem; color: var(--muted); white-space: nowrap; }
+.weg-liste { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; }
+.weg-liste button { width: 100%; text-align: left; border: 0; background: none; padding: 8px 12px; min-height: 44px; display: flex; gap: 12px; }
+.weg-liste button[aria-current="true"] { background: var(--soft); font-weight: 700; }
+.weg-liste .zeit { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 3.2em; }
+
+/* Seiten */
+.page { height: 100%; overflow-y: auto; padding: 22px clamp(16px, 4vw, 40px) 40px; }
+.phead { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 20px; }
+.inl { display: flex; align-items: center; gap: 8px; } .inl select { width: auto; }
+.empty { text-align: center; max-width: 46ch; margin: 8vh auto; }
+.empty p { font-size: 1.1rem; margin: 8px 0; } .empty p.muted { font-size: 1rem; }
+.qgrp { margin-bottom: 30px; }
+.qgrp h2 { margin-bottom: 12px; padding-left: 12px; border-left: 4px solid var(--accent); }
+.karten { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+.karte { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.kbild { border-bottom: 1px solid var(--line); padding: 6px; }
+.kbild svg.thumb { width: 100%; height: 160px; display: block; }
+.kbild.paar svg.thumb { height: 120px; }
+.kbody { padding: 10px 14px 4px; flex: 1; }
+.kmeta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.karte h3 { margin-top: 6px; }
+.notiz { margin: 6px 0; font-size: 1.05rem; }
+.kacts { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 10px; }
+.kacts .ghost { margin-left: auto; }
+.gbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.gbar .btn { margin-left: auto; }
+.pick { display: flex; flex-direction: column; gap: 4px; }
+.pick.on .karte { box-shadow: 0 0 0 3px var(--accent); }
+.leiterinfo { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 12px 0 18px; }
+.leiterinfo ol { margin: 6px 0 0; padding-left: 1.3em; }
+.tbl { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 14px; overflow: hidden; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: .85rem; color: var(--muted); }
+td input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--accent); }
+.tthumb svg { width: 120px; height: 80px; display: block; background: var(--paper); border-radius: 8px; margin-bottom: 4px; }
+.badge { display: inline-block; font-size: .8rem; padding: 2px 8px; border-radius: 6px; background: color-mix(in srgb, var(--hint) 14%, var(--panel)); color: var(--ink); }
+.info { max-width: 760px; margin-bottom: 26px; }
+.info p { margin: 6px 0 10px; }
+.info code { background: var(--bg); padding: 2px 6px; border-radius: 6px; word-break: break-all; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Präsentation */
+.present { position: fixed; inset: 0; z-index: 60; background: var(--bg); display: flex; flex-direction: column; padding: 14px 22px 10px; }
+.phd { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.phd h2 { font-size: 1.4rem; }
+.talk { margin: 0 auto; border: 0; background: var(--ink); color: var(--paper); font-size: 1.4rem; font-weight: 700; padding: 8px 26px; border-radius: 999px; min-height: 52px; }
+.pgrid { flex: 1; min-height: 0; display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); }
+.pgrid.n1 { grid-template-columns: minmax(0, 1fr); }
+.pgrid.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pitem { min-height: 0; display: flex; cursor: zoom-in; }
+.pitem .karte { flex: 1; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.karte.gross .kbild { min-height: 0; height: 100%; }
+.karte.gross .kbild figure { height: 100%; display: flex; flex-direction: column; }
+.karte.gross .kbild svg.thumb { flex: 1; height: auto; min-height: 0; }
+.karte.gross h3 { font-size: 1.35rem; } .karte.gross .notiz { font-size: 1.25rem; }
+.pfoot { text-align: center; margin: 8px 0 0; }
+
+/* Fuß */
+.foot { font-size: .8rem; color: var(--muted); background: var(--panel); border-top: 1px solid var(--line); padding: 4px 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.foot a { color: inherit; }
+.foot details { position: relative; }
+.foot summary { cursor: pointer; text-decoration: underline; min-height: 32px; display: inline-flex; align-items: center; }
+.foot details[open] .lizenz { position: fixed; left: 12px; right: 12px; bottom: 48px; max-width: 640px; margin: 0 auto; max-height: 70vh; overflow-y: auto; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; box-shadow: var(--shadow); color: var(--ink); font-size: .92rem; z-index: 40; }
+.lizenz h3 { margin: 10px 0 4px; font-size: .98rem; } .lizenz h3:first-child { margin-top: 0; }
+.lizenz p { margin: 0 0 6px; }
+
+#toast { position: fixed; left: 50%; bottom: 52px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 12px; z-index: 80; max-width: calc(100% - 32px); text-align: center; box-shadow: var(--shadow); }
+#toast[hidden] { display: none; }
+
+/* Beamer: nur die Arbeitsfläche */
+#beamerExit { position: fixed; right: 16px; bottom: 16px; z-index: 70; display: flex; gap: 8px; }
+#beamerExit[hidden] { display: none; }
+#beamerExit svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; }
+body.beamer .top, body.beamer .foot, body.beamer .tools, body.beamer .tasklist, body.beamer .float, body.beamer .checkbar, body.beamer .panel, body.beamer .btop, body.beamer .leiter { display: none !important; }
+body.beamer .ws, body.beamer .tasks { grid-template-columns: 1fr; }
+body.beamer .prompt { font-size: 1.8rem; }
+body.beamer .stage { padding: 8px; }
+
+/* Große Knöpfe */
+body.gross { --tool: 84px; }
+body.gross .tool { font-size: .92rem; min-height: 74px; }
+body.gross .tool svg { width: 36px; height: 36px; }
+body.gross .btn { min-height: 54px; font-size: 1.08rem; }
+
+/* Hochformat / schmale Geräte */
+@media (max-width: 860px) {
+  .brand span { display: none; }
+  .tabs button, .topr button { padding: 0 9px; font-size: .95rem; }
+  .topr button span { display: none; }
+  .ws { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  .tools { order: 2; flex-direction: row; border-right: 0; border-top: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; padding: 6px; }
+  .grp { flex-direction: row; }
+  .grp + .grp { padding-top: 0; border-top: 0; padding-left: 8px; border-left: 1px solid var(--line); }
+  .stage { padding: 6px; }
+  .float { right: 12px; bottom: 12px; }
+  .float .btn:not(.primary) { min-height: 44px; padding: 6px 12px; }
+  .panel { left: 12px; bottom: auto; top: 60px; }
+  .tasks { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .tasklist { border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 12px; }
+  .tgrp { display: none; } .tselect { display: block; }
+  .prompt { font-size: 1.1rem; }
+  .leiter span { display: none; } .leiter button { padding: 4px 8px 4px 6px; }
+  .pgrid, .pgrid.n3 { grid-template-columns: 1fr; grid-auto-rows: minmax(260px, auto); overflow-y: auto; }
+  .hilfen { right: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M16 4v24" stroke="#FF6B7D" stroke-width="2.5"/><path d="M13 9L5 23h8z" fill="#fff"/><path d="M19 9l8 14h-8z" fill="none" stroke="#fff" stroke-width="1.8" stroke-dasharray="3 2"/></svg><span>Spiegel-Werkstatt</span></div>
+  <nav class="tabs" aria-label="Bereiche">
+    <button data-v="werkstatt">Werkstatt</button>
+    <button data-v="aufgaben">Aufgaben</button>
+    <button data-v="buch">Forscherbuch <span class="count" id="buchCount" hidden>0</span></button>
+  </nav>
+  <div class="topr">
+    <button id="beamerBtn" title="Präsentation für Beamer und Tafel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg><span>Beamer</span></button>
+    <button id="optBtn" title="Optionen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Optionen</span></button>
+    <button id="lehrkraftBtn">Für Lehrkräfte</button>
+  </div>
+</header>
+<div id="banner" role="alert" hidden></div>
+<main id="main"></main>
+<footer class="foot">
+  <span>Urheber: Dr. Simeon Schwob (GIMB, Universität Münster) · privates Angebot · Keine Datenerhebung · Code: MIT · Materialien: CC BY 4.0 · <a href="https://docschwob.github.io/impressum.html" target="_blank" rel="noopener">Impressum</a></span>
+  <details>
+    <summary>Lizenz und Datenschutz</summary>
+    <div class="lizenz">
+      <h3>Urheberschaft</h3>
+      <p>Die Spiegel-Werkstatt ist ein privates Angebot von Dr. Simeon Schwob. Sie wird am GIMB (Institut für grundlegende und inklusive mathematische Bildung, Universität Münster) in der Lehre genutzt, ist aber kein offizielles Angebot der Universität. Angaben nach § 18 Abs. 1 MStV im <a href="https://docschwob.github.io/impressum.html" target="_blank" rel="noopener">Impressum</a>.</p>
+      <h3>Datenschutz</h3>
+      <p>Keine Datenerhebung: kein Login, keine Konten, kein Tracking, keine externen Dienste, keine nachgeladenen Schriften. Arbeitsstände, Forscherbuch-Karten und Einstellungen werden nur lokal in diesem Browser gespeichert (localStorage) und verlassen das Gerät nicht. Löschen: „Für Lehrkräfte“ → „Daten und Hinweise“ → „Alles löschen“ oder die Websitedaten im Browser löschen. Bitte in Karten nur Kürzel, keine Namen eintragen.</p>
+      <p>Gehostet wird die Seite bei GitHub Pages (GitHub Inc.). Beim Aufruf verarbeitet GitHub technisch notwendige Verbindungsdaten, z. B. die IP-Adresse, in Server-Protokollen; siehe die Datenschutzhinweise von GitHub. Wer die Datei herunterlädt und per Doppelklick öffnet, arbeitet ganz ohne Verbindung.</p>
+      <h3>Lizenzen</h3>
+      <p>Programmcode: MIT-Lizenz. Aufgaben, Texte und Abbildungen: CC BY 4.0, Urheber Dr. Simeon Schwob. Schrift: Atkinson Hyperlegible (Braille Institute of America), SIL Open Font License 1.1.</p>
+      <p>Die Aufgabenformate lehnen sich an Das Zahlenbuch (Klett) und PIKAS (DZLM) an; Figuren und Aufgabentexte sind eigene Formulierungen. Die genauen Bezüge stehen unter „Für Lehrkräfte“ → „Aufgaben“.</p>
+    </div>
+  </details>
+</footer>
+<div id="dlg" hidden></div>
+<div id="toast" role="status" hidden></div>
+<div id="beamerExit" hidden></div>
+<script id="geo">
+/* ===== Geometrie-Kern: reine Funktionen, ohne Oberfläche (wird in test/geo.test.mjs geprüft) ===== */
+const Geo = (() => {
+  const v = (x, y) => ({ x, y });
+  const add = (p, q) => v(p.x + q.x, p.y + q.y);
+  const sub = (p, q) => v(p.x - q.x, p.y - q.y);
+  const mul = (p, k) => v(p.x * k, p.y * k);
+  const dot = (p, q) => p.x * q.x + p.y * q.y;
+  const cross = (p, q) => p.x * q.y - p.y * q.x;
+  const len = p => Math.hypot(p.x, p.y);
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  const mid = (p, q) => v((p.x + q.x) / 2, (p.y + q.y) / 2);
+  const unit = p => { const l = len(p); return l < 1e-12 ? v(0, 0) : mul(p, 1 / l); };
+  const perp = p => v(-p.y, p.x);
+
+  /** Lotfußpunkt von p auf der Geraden l = {a, b}. */
+  function foot(p, l) {
+    const d = sub(l.b, l.a), L = dot(d, d);
+    if (L < 1e-12) return v(l.a.x, l.a.y);
+    return add(l.a, mul(d, dot(sub(p, l.a), d) / L));
+  }
+  /** Achsenspiegelung: P' = 2·F − P (F = Lotfußpunkt). */
+  function reflect(p, l) { const f = foot(p, l); return v(2 * f.x - p.x, 2 * f.y - p.y); }
+  function distToLine(p, l) {
+    const d = sub(l.b, l.a), L = len(d);
+    return L < 1e-12 ? dist(p, l.a) : Math.abs(cross(d, sub(p, l.a))) / L;
+  }
+  /** Vorzeichenbehafteter Abstand zur Achse (welche Seite?). */
+  function sideVal(p, l) { return cross(unit(sub(l.b, l.a)), sub(p, l.a)); }
+  function side(p, l, tol = 1e-6) { const c = sideVal(p, l); return Math.abs(c) <= tol ? 0 : (c > 0 ? 1 : -1); }
+  function acuteAngleDeg(u, w) {
+    const a = Math.abs(dot(unit(u), unit(w)));
+    return Math.acos(Math.min(1, a)) * 180 / Math.PI;
+  }
+  function isPerpendicularTo(p, q, l, tolDeg = 4) {
+    if (dist(p, q) < 1e-9) return false;
+    return Math.abs(acuteAngleDeg(sub(q, p), sub(l.b, l.a)) - 90) <= tolDeg;
+  }
+  /** Achse als {Punkt, Winkel in Grad}. */
+  function toPointAngle(l) { const d = sub(l.b, l.a); return { point: v(l.a.x, l.a.y), angle: Math.atan2(d.y, d.x) * 180 / Math.PI }; }
+  /** Liegt die Gerade „other“ auf der Geraden „ref“? (ref.a liegt nahe der Figur) */
+  function sameLine(ref, other, tol = 0.1, tolDeg = 2) {
+    if (acuteAngleDeg(sub(ref.b, ref.a), sub(other.b, other.a)) > tolDeg) return false;
+    return distToLine(ref.a, other) <= tol;
+  }
+  /** Ist die Achse waagerecht, senkrecht oder diagonal (45°)? Dann bleiben Kästchen Kästchen. */
+  function isGridAngle(l) {
+    const d = sub(l.b, l.a);
+    const ang = ((Math.atan2(d.y, d.x) * 180 / Math.PI) % 45 + 45) % 45;
+    return ang < 1e-6 || 45 - ang < 1e-6;
+  }
+  function centroid(pts) { const s = pts.reduce((a, p) => add(a, p), v(0, 0)); return mul(s, 1 / Math.max(1, pts.length)); }
+
+  /** Doppelte Punkte und Punkte mitten auf einer Seite entfernen (ändern die Figur nicht). */
+  function cleanPolygon(raw, tol = 1e-6) {
+    const pts = raw.slice();
+    let changed = true;
+    while (changed && pts.length > 2) {
+      changed = false;
+      for (let i = 0; i < pts.length && pts.length > 2; i++) {
+        const prev = pts[(i - 1 + pts.length) % pts.length], cur = pts[i], next = pts[(i + 1) % pts.length];
+        const dup = dist(cur, next) <= tol;
+        const onSide = distToLine(cur, { a: prev, b: next }) <= tol && dot(sub(prev, cur), sub(next, cur)) < 0;
+        if (dup || onSide) { pts.splice(i, 1); changed = true; break; }
+      }
+    }
+    return pts;
+  }
+  /** Ordnet jedem Punkt aus A genau einen Punkt aus B zu (Abstand ≤ tol, gleiche Marke). */
+  function matchPoints(A, B, tol, labA, labB) {
+    if (A.length !== B.length) return null;
+    const used = new Array(B.length).fill(false), map = [];
+    for (let i = 0; i < A.length; i++) {
+      let best = -1, bestD = Infinity;
+      for (let j = 0; j < B.length; j++) {
+        if (used[j] || (labA && labA[i] !== labB[j])) continue;
+        const d = dist(A[i], B[j]);
+        if (d < bestD) { bestD = d; best = j; }
+      }
+      if (best < 0 || bestD > tol) return null;
+      used[best] = true; map.push(best);
+    }
+    return map;
+  }
+  function edgeSet(n, closed) {
+    const s = new Set(), m = closed ? n : n - 1;
+    for (let i = 0; i < m; i++) { const j = (i + 1) % n; s.add(i < j ? i + '-' + j : j + '-' + i); }
+    return s;
+  }
+  /** Figurenvergleich unabhängig von Startecke und Umlaufsinn: 'gleich' | 'eckenGleich' | 'anzahl' | 'verschieden'. */
+  function compareFigures(child, target, closed, tol) {
+    const c = closed ? cleanPolygon(child) : child, t = closed ? cleanPolygon(target) : target;
+    if (c.length !== t.length) return 'anzahl';
+    const map = matchPoints(c, t, tol);
+    if (!map) return 'verschieden';
+    const tE = edgeSet(t.length, closed), m = closed ? c.length : c.length - 1;
+    for (let i = 0; i < m; i++) {
+      const a = map[i], b = map[(i + 1) % c.length];
+      if (!tE.has(a < b ? a + '-' + b : b + '-' + a)) return 'eckenGleich';
+    }
+    return 'gleich';
+  }
+  /**
+   * Alle Spiegelachsen einer Figur (Ecken UND Seiten werden geprüft).
+   * Jede Achse geht durch den Schwerpunkt der Ecken. Kandidaten: Schwerpunkt–Ecke und Mittelsenkrechten von Eckenpaaren.
+   */
+  function symmetryAxes(raw, closed, tol = 1e-3) {
+    const pts = closed ? cleanPolygon(raw, Math.min(tol, 1e-3)) : raw.slice();
+    if (pts.length === 0) return [];
+    if (pts.length === 1) return 'unendlich';
+    const isClosed = closed && pts.length >= 3, n = pts.length, C = centroid(pts);
+    const cands = [];
+    for (const p of pts) if (dist(C, p) > tol) cands.push({ a: C, b: p });
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const d = sub(pts[j], pts[i]);
+      if (len(d) <= tol) continue;
+      const M = mid(pts[i], pts[j]);
+      cands.push({ a: M, b: add(M, perp(d)) });
+    }
+    const edges = edgeSet(n, isClosed), out = [];
+    for (const cand of cands) {
+      const l = { a: foot(C, cand), b: add(foot(C, cand), sub(cand.b, cand.a)) }; // Bezugspunkt: Schwerpunkt
+      if (out.some(r => sameLine(r, l, tol * 2, 1))) continue;
+      const map = matchPoints(pts.map(p => reflect(p, l)), pts, tol);
+      if (!map) continue;
+      let ok = true;
+      for (const e of edges) {
+        const [i, j] = e.split('-').map(Number), a = map[i], b = map[j];
+        if (!edges.has(a < b ? a + '-' + b : b + '-' + a)) { ok = false; break; }
+      }
+      if (ok) out.push(l);
+    }
+    return out;
+  }
+
+  /* --- Kästchen --- */
+  const cellKey = c => c.x + ',' + c.y;
+  const cellCenter = c => v(c.x + 0.5, c.y + 0.5);
+  const cellCorners = c => [v(c.x, c.y), v(c.x + 1, c.y), v(c.x + 1, c.y + 1), v(c.x, c.y + 1)];
+  /** Spiegelkästchen – oder null, wenn das Bild nicht genau auf ein Kästchen fällt. */
+  function mirrorCell(c, l) {
+    if (!isGridAngle(l)) return null;
+    const p = reflect(cellCenter(c), l), x = p.x - 0.5, y = p.y - 0.5, rx = Math.round(x), ry = Math.round(y);
+    if (Math.abs(x - rx) > 1e-6 || Math.abs(y - ry) > 1e-6) return null;
+    return { x: rx, y: ry, c: c.c };
+  }
+  function cellMap(cells) { const m = new Map(); for (const c of cells) m.set(cellKey(c), c); return m; }
+  function cellsEqual(A, B, useColor) {
+    if (A.length !== B.length) return false;
+    const m = cellMap(B);
+    return A.every(c => { const o = m.get(cellKey(c)); return o && (!useColor || o.c === c.c); });
+  }
+  /** Kästchen, deren Spiegelkästchen fehlt oder eine andere Farbe hat. */
+  function asymmetricCells(cells, l, useColor) {
+    const m = cellMap(cells);
+    return cells.filter(c => { const mc = mirrorCell(c, l); if (!mc) return true; const o = m.get(cellKey(mc)); return !o || (useColor && o.c !== c.c); });
+  }
+  /** Spiegelachsen eines Kästchenmusters: nur waagerecht, senkrecht, diagonal – durch den Schwerpunkt. */
+  function cellAxes(cells, useColor) {
+    if (!cells.length) return [];
+    const C = centroid(cells.map(cellCenter));
+    return [v(1, 0), v(0, 1), v(1, 1), v(1, -1)].map(d => ({ a: C, b: add(C, d) }))
+      .filter(l => asymmetricCells(cells, l, useColor).length === 0);
+  }
+  /** Sind alle Figuren (Vielecke) zusammen symmetrisch zur Achse? Gibt die unpassenden Figuren zurück. */
+  function asymmetricPolys(polys, l, tol) {
+    return polys.filter(p => {
+      const img = p.pts.map(q => reflect(q, l));
+      return !polys.some(o => o.closed === p.closed && compareFigures(img, o.pts, p.closed, tol) === 'gleich');
+    });
+  }
+
+  /** Gerade auf ein Rechteck zuschneiden (für die Darstellung der Achse). */
+  function clipLine(l, box) {
+    const d = sub(l.b, l.a);
+    if (len(d) < 1e-9) return null;
+    let t0 = -Infinity, t1 = Infinity;
+    for (const [dd, lo, hi] of [[d.x, box.x - l.a.x, box.x + box.w - l.a.x], [d.y, box.y - l.a.y, box.y + box.h - l.a.y]]) {
+      if (Math.abs(dd) < 1e-12) { if (lo > 0 || hi < 0) return null; continue; }
+      let a = lo / dd, b = hi / dd; if (a > b) [a, b] = [b, a];
+      t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+    }
+    return t0 > t1 ? null : [add(l.a, mul(d, t0)), add(l.a, mul(d, t1))];
+  }
+  function pointInPolygon(p, poly) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const a = poly[i], b = poly[j];
+      if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) inside = !inside;
+    }
+    return inside;
+  }
+  function distToSegment(p, a, b) {
+    const d = sub(b, a), L = dot(d, d);
+    if (L < 1e-12) return dist(p, a);
+    const t = Math.max(0, Math.min(1, dot(sub(p, a), d) / L));
+    return dist(p, add(a, mul(d, t)));
+  }
+
+  return { v, add, sub, mul, dot, cross, len, dist, mid, unit, perp, foot, reflect, distToLine, sideVal, side,
+    acuteAngleDeg, isPerpendicularTo, toPointAngle, sameLine, isGridAngle, centroid, cleanPolygon, matchPoints,
+    compareFigures, symmetryAxes, cellKey, cellCenter, cellCorners, mirrorCell, cellsEqual, asymmetricCells,
+    cellAxes, asymmetricPolys, clipLine, pointInPolygon, distToSegment };
+})();
+</script>
+<script id="aufgaben">
+/* ===== Aufgaben: Datenstruktur, Schwierigkeitsleiter, geometrische Prüfung (ohne Oberfläche) ===== */
+const Aufgaben = (() => {
+  const G = Geo;
+  const P = (x, y) => ({ x, y });
+  /** "6,1,g 5,2,g" → Kästchen */
+  const cells = s => s.trim().split(/\s+/).map(t => { const [x, y, c] = t.split(','); return { x: +x, y: +y, c: c || 'b' }; });
+  const pts = s => s.trim().split(/\s+/).map(t => { const [x, y] = t.split(',').map(Number); return P(x, y); });
+
+  /*
+   * Aufgabenkarten. Jede Karte gilt für alle Stufen ihrer Leiter.
+   * quelle: woran sich Format/Idee anlehnt. eigen: was selbst formuliert ist (bitte fachlich prüfen).
+   */
+  const KARTEN = [
+    { id: 'k1', fam: 'bild', mat: 'kaestchen', kl: '1–2', titel: 'Tanne', W: 14, H: 10, achse: { x: 7 },
+      start: { cells: cells('6,1,g 5,2,g 6,2,g 4,3,g 5,3,g 6,3,g 5,4,g 6,4,g 4,5,g 5,5,g 6,5,g 3,6,g 4,6,g 5,6,g 6,6,g 6,7,n 6,8,n') },
+      quelle: 'Format „Zeichne ab. Ergänze das Spiegelbild.“ – Zahlenbuch 2, S. 67, Aufg. 5', eigen: 'Figur und Aufgabentexte' },
+    { id: 'k2', fam: 'bild', mat: 'kaestchen', kl: '1–2', titel: 'Treppe', W: 14, H: 10, achse: { x: 7 },
+      start: { cells: cells('5,4,b 4,5,b 5,5,b 3,6,b 4,6,b 5,6,b 2,7,y 3,7,y 4,7,y 5,7,y') },
+      quelle: 'Spiegelbild mit Abstand zur Achse – Zahlenbuch 2, S. 66/67', eigen: 'Figur und Aufgabentexte' },
+    { id: 'k3', fam: 'bild', mat: 'kaestchen', kl: '1–2', titel: 'Boot im Wasser', W: 14, H: 10, achse: { y: 5 },
+      start: { cells: cells('6,1,y 5,2,y 6,2,y 7,1,n 7,2,n 4,3,p 5,3,p 6,3,p 7,3,p 8,3,p 9,3,p 5,4,p 6,4,p 7,4,p 8,4,p') },
+      quelle: 'Waagerechte Spiegelachse – Zahlenbuch 2, S. 66/67', eigen: 'Figur und Aufgabentexte' },
+    { id: 'k4', fam: 'bild', mat: 'kaestchen', kl: '1–2', titel: 'Buntes Muster', W: 14, H: 10, achse: { x: 7 },
+      start: { cells: cells('2,2,b 3,2,y 4,3,b 5,4,g 3,5,y 4,6,g 2,7,b') },
+      quelle: 'Farbe und Abstand beachten („Dieses Kästchen muss blau sein, weil …“) – Zahlenbuch 2, S. 67, Aufg. 6', eigen: 'Muster und Aufgabentexte' },
+    { id: 'g1', fam: 'bild', mat: 'geobrett', kl: '3–4', titel: 'Dreieck', W: 14, H: 10, achse: { x: 7 },
+      start: { poly: pts('2,2 5,3 3,6') },
+      quelle: 'Figuren am Geobrett spiegeln – Zahlenbuch 3, S. 92/93', eigen: 'Figur und Aufgabentexte' },
+    { id: 'g2', fam: 'bild', mat: 'geobrett', kl: '3–4', titel: 'Dreieck an der Achse', W: 14, H: 10, achse: { x: 7 },
+      start: { poly: pts('7,2 7,7 4,7') },
+      quelle: '„Spiegelt das Dreieck an allen drei Seiten. Welche Formen entstehen?“ – Zahlenbuch 3, S. 93, Aufg. 4', eigen: 'Figur und Aufgabentexte' },
+    { id: 'g3', fam: 'bild', mat: 'geobrett', kl: '3–4', titel: 'Viereck', W: 14, H: 10, achse: { y: 5 },
+      start: { poly: pts('3,1 8,2 7,4 4,3') },
+      quelle: 'Vierecke am Geobrett spiegeln – Zahlenbuch 3, S. 93, Aufg. 5', eigen: 'Figur und Aufgabentexte' },
+    { id: 'g4', fam: 'bild', mat: 'geobrett', kl: '3–4', titel: 'Fünfeck', W: 14, H: 10, achse: { x: 7 },
+      start: { poly: pts('1,4 3,2 6,3 5,7 2,7') },
+      quelle: 'Partnerspiel „Dein Partner spannt das Spiegelbild“ – Zahlenbuch 3, S. 93, Aufg. 6', eigen: 'Figur und Aufgabentexte' },
+    { id: 's1', fam: 'achsen', mat: 'geobrett', kl: '3–4', titel: 'Rechteck', W: 14, H: 10, start: { poly: pts('3,3 11,3 11,7 3,7') }, aendern: 4, erfinden: 2,
+      quelle: 'Vierecke mit einer oder mehreren Symmetrieachsen – Zahlenbuch 4, S. 62/63', eigen: 'Figur und Aufgabentexte' },
+    { id: 's2', fam: 'achsen', mat: 'geobrett', kl: '3–4', titel: 'Quadrat', W: 14, H: 10, start: { poly: pts('4,2 10,2 10,8 4,8') }, aendern: 2, erfinden: 4,
+      quelle: 'Zahlenbuch 4, S. 62/63', eigen: 'Figur und Aufgabentexte' },
+    { id: 's3', fam: 'achsen', mat: 'geobrett', kl: '3–4', titel: 'Drachen', W: 14, H: 10, start: { poly: pts('7,1 10,4 7,9 4,4') }, aendern: 2, erfinden: 1,
+      quelle: 'Faltschnitte: Symmetrieachsen einzeichnen – PIKAS, Haus 7 (Nowack 2012), A2; Zahlenbuch 1, S. 52/53', eigen: 'Figur und Aufgabentexte' },
+    { id: 's4', fam: 'achsen', mat: 'geobrett', kl: '3–4', titel: 'Raute', W: 14, H: 10, start: { poly: pts('7,1 10,5 7,9 4,5') }, aendern: 4, erfinden: 2,
+      quelle: 'Zahlenbuch 4, S. 62/63', eigen: 'Figur und Aufgabentexte' },
+    { id: 's5', fam: 'achsen', mat: 'geobrett', kl: '3–4', titel: 'Trapez', W: 14, H: 10, start: { poly: pts('5,3 9,3 11,7 3,7') }, aendern: 2, erfinden: 1,
+      quelle: 'Zahlenbuch 4, S. 62/63', eigen: 'Figur und Aufgabentexte' },
+    { id: 's6', fam: 'achsen', mat: 'geobrett', kl: '3–4', titel: 'Parallelogramm', W: 14, H: 10, start: { poly: pts('3,7 9,7 11,3 5,3') }, aendern: 1, erfinden: 0,
+      quelle: 'Figur ohne Spiegelachse; „Diese Figur so verändern, dass sie symmetrisch wird“ – PIKAS Faltschnitte, A2*', eigen: 'Figur und Aufgabentexte' },
+  ];
+
+  /* Schwierigkeitsleiter: gilt für jede Karte; die oberste Stufe ist immer eine offene Aufgabe. */
+  const LEITER = {
+    bild: [
+      { n: 1, kurz: 'Mit Spiegel', info: 'Der Spiegel zeigt das Bild (Zahlenbuch 1, S. 74/75).' },
+      { n: 2, kurz: 'Spiegelbild', info: 'Ohne Spiegel, Achse gerade (Zahlenbuch 2, S. 66).' },
+      { n: 3, kurz: 'Schräge Achse', info: 'Dieselbe Figur, schräge Achse.' },
+      { n: 4, kurz: 'Achse finden', info: '„Wo steht der Spiegel?“ (Zahlenbuch 1, S. 75, Aus … mache …).' },
+      { n: 5, kurz: 'Fehler finden', info: '„Spiegelbilder? Erkläre und zeichne neu.“ (Zahlenbuch 2, S. 66/67).' },
+      { n: 6, kurz: 'Erfinden', info: 'Eigene Figur mit Spiegelbild – offene Aufgabe.' },
+    ],
+    achsen: [
+      { n: 1, kurz: 'Eine Achse', info: 'Eine Spiegelachse finden.' },
+      { n: 2, kurz: 'Alle Achsen', info: 'Alle Spiegelachsen finden.' },
+      { n: 3, kurz: 'Verändern', info: 'Figur so verändern, dass sie eine bestimmte Anzahl Achsen hat (PIKAS Faltschnitte, A2*).' },
+      { n: 4, kurz: 'Erfinden', info: 'Eigene Figur mit vorgegebener Achsenzahl – offene Aufgabe.' },
+    ],
+  };
+
+  const achsen = n => n === 0 ? 'keine Spiegelachse' : n === 1 ? 'genau eine Spiegelachse' : `genau ${n} Spiegelachsen`;
+
+  function axisOf(k) {
+    return k.achse.x !== undefined ? { a: P(k.achse.x, 0), b: P(k.achse.x, k.H) } : { a: P(0, k.achse.y), b: P(k.W, k.achse.y) };
+  }
+  const inBoard = (p, k) => p.x >= -1e-9 && p.y >= -1e-9 && p.x <= k.W + 1e-9 && p.y <= k.H + 1e-9;
+  /** Kontrollpunkte einer Startfigur (Ecken der Kästchen bzw. Ecken der Figur). */
+  const controlPoints = k => k.start.cells ? k.start.cells.flatMap(G.cellCorners) : k.start.poly;
+
+  /** Schräge Achse (45°) suchen: Figur ganz auf einer Seite, Spiegelbild passt auf das Brett, möglichst nah. */
+  function diagonalAxis(k) {
+    const cp = controlPoints(k);
+    let best = null;
+    for (const dir of [1, -1]) for (let c = -k.W - k.H; c <= k.W + k.H; c++) {
+      // Gerade y = dir·x + c
+      const l = { a: P(0, c), b: P(1, dir + c) };
+      const vals = cp.map(p => G.sideVal(p, l));
+      if (!(vals.every(s => s >= -1e-9) || vals.every(s => s <= 1e-9))) continue;
+      const img = cp.map(p => G.reflect(p, l));
+      if (!img.every(p => inBoard(p, k))) continue;
+      // Figur und Bild dürfen sich nicht überlappen (nur berühren)
+      const score = vals.reduce((a, s) => a + Math.abs(s), 0);
+      if (!best || score < best.score) best = { l, score };
+    }
+    if (!best) return null;
+    const seg = G.clipLine(best.l, { x: 0, y: 0, w: k.W, h: k.H });
+    return seg ? { a: seg[0], b: seg[1] } : null;
+  }
+
+  /** Karte mit verschobener Startfigur (damit die schräge Achse auf das Brett passt). */
+  function shifted(k, dx, dy) {
+    if (!dx && !dy) return k;
+    const s = k.start.cells ? { cells: k.start.cells.map(c => ({ ...c, x: c.x + dx, y: c.y + dy })) } : { poly: k.start.poly.map(p => P(p.x + dx, p.y + dy)) };
+    return { ...k, start: s };
+  }
+  function diagonalSetup(k) {
+    const cp = controlPoints(k);
+    const offs = [];
+    for (let dx = -k.W; dx <= k.W; dx++) for (let dy = -k.H; dy <= k.H; dy++) {
+      if (cp.every(p => inBoard(P(p.x + dx, p.y + dy), k))) offs.push([dx, dy]);
+    }
+    offs.sort((a, b) => Math.hypot(...a) - Math.hypot(...b));
+    for (const [dx, dy] of offs) { const k2 = shifted(k, dx, dy), l = diagonalAxis(k2); if (l) return { k: k2, l }; }
+    return null;
+  }
+
+  function mirrorStart(k, l) {
+    if (k.start.cells) return { cells: k.start.cells.map(c => G.mirrorCell(c, l)) };
+    return { poly: k.start.poly.map(p => G.reflect(p, l)) };
+  }
+  /** Spiegelbild mit absichtlichen Fehlern (Stufe „Fehler finden“). */
+  function withErrors(k, l) {
+    const img = mirrorStart(k, l);
+    if (img.cells) {
+      const cs = img.cells.map(c => ({ ...c }));
+      const side = G.sideVal(G.cellCenter(k.start.cells[0]), l) > 0 ? -1 : 1; // Bildseite
+      const n = G.unit(G.perp(G.sub(l.b, l.a)));
+      // 1. ein Kästchen eine Reihe weiter weg von der Achse
+      const far = cs.reduce((m, c) => Math.abs(G.sideVal(G.cellCenter(c), l)) > Math.abs(G.sideVal(G.cellCenter(m), l)) ? c : m, cs[0]);
+      far.x += Math.round(n.x * side); far.y += Math.round(n.y * side);
+      // 2. bei mehreren Farben: eine Farbe vertauschen, sonst ein Kästchen weglassen
+      const colors = [...new Set(cs.map(c => c.c))];
+      if (colors.length > 1) { const c = cs.find(c => c !== far && c.c !== far.c) || cs[1]; c.c = colors.find(x => x !== c.c); }
+      else cs.splice(cs.findIndex(c => c !== far), 1);
+      return { cells: cs };
+    }
+    const p = img.poly.map(q => ({ ...q }));
+    const n = G.unit(G.perp(G.sub(l.b, l.a)));
+    const sideImg = G.sideVal(p[0], l) >= 0 ? 1 : -1;
+    const i = p.reduce((m, q, j) => Math.abs(G.sideVal(q, l)) > Math.abs(G.sideVal(p[m], l)) ? j : m, 0);
+    p[i] = G.add(p[i], P(Math.round(n.x * sideImg), Math.round(n.y * sideImg)));
+    return { poly: p };
+  }
+
+  /**
+   * Stufe einer Karte aufbauen. Ergebnis:
+   * { prompt, given: {cells, polys, axes}, spiegel (Spiegel steht), werkzeuge, hilfen, ziel, ... }
+   */
+  function stufe(k, n) {
+    const kz = k.mat === 'kaestchen';
+    const tune = { W: k.W, H: k.H, mat: k.mat };
+    const locked = (o) => ({ ...o, locked: true });
+    const startCells = () => (k.start.cells || []).map(c => locked({ ...c }));
+    const startPoly = (lock = true) => k.start.poly ? [{ id: 'start', pts: k.start.poly.map(p => ({ ...p })), c: 'b', closed: true, locked: lock }] : [];
+    const axisObj = (l, lock = true) => ({ id: 'achse', a: { ...l.a }, b: { ...l.b }, locked: lock });
+
+    if (k.fam === 'bild') {
+      const verb = kz ? 'Färbe' : 'Spanne';
+      const l2 = axisOf(k);
+      if (n === 1 || n === 2 || n === 3) {
+        let l = l2;
+        if (n === 3) { const d = diagonalSetup(k); if (!d) return null; k = d.k; l = d.l; }
+        return { ...tune, typ: 'bild', stufe: n, achse: l,
+          prompt: n === 1 ? `Der Spiegel steht auf der roten Linie. ${verb}, was du im Spiegel siehst.`
+            : n === 2 ? `${verb} das Spiegelbild. Die rote Linie ist die Spiegelachse.`
+            : `Die Spiegelachse ist schräg. ${verb} das Spiegelbild.`,
+          given: { cells: startCells(), polys: startPoly(), axes: [axisObj(l)] }, spiegel: n === 1,
+          werkzeuge: kz ? ['faerben', 'radieren'] : ['spannen', 'bewegen', 'radieren'],
+          hilfen: n === 1 ? ['teil', 'abstand'] : ['spiegel3', 'teil', 'abstand', 'falten'],
+          ziel: mirrorStart(k, l) };
+      }
+      if (n === 4) {
+        const img = mirrorStart(k, l2);
+        return { ...tune, typ: 'achseFinden', stufe: 4,
+          prompt: 'Wo steht der Spiegel? Zeichne die Spiegelachse ein.',
+          given: { cells: [...startCells(), ...(img.cells || []).map(locked)], polys: [...startPoly(), ...(img.poly ? [{ id: 'bild', pts: img.poly, c: 'b', closed: true, locked: true }] : [])], axes: [] },
+          spiegel: false, werkzeuge: ['spiegel', 'bewegen', 'radieren'], hilfen: ['spiegel3', 'falten', 'mitte'], maxAchsen: 1 };
+      }
+      if (n === 5) {
+        const err = withErrors(k, l2);
+        return { ...tune, typ: 'fehler', stufe: 5, achse: l2,
+          prompt: kz ? 'Hier wurde gespiegelt. Finde die Fehler und verbessere.' : 'Hier wurde gespiegelt. Finde den Fehler und verbessere.',
+          given: { cells: [...(k.start.cells || []).map(c => ({ ...c })), ...(err.cells || [])], polys: [...startPoly(false), ...(err.poly ? [{ id: 'bild', pts: err.poly, c: 'b', closed: true }] : [])], axes: [axisObj(l2)] },
+          spiegel: false, werkzeuge: kz ? ['faerben', 'radieren'] : ['bewegen', 'spannen', 'radieren'], hilfen: ['spiegel3', 'falten', 'abstand'],
+          mindestens: kz ? k.start.cells.length : 2 };
+      }
+      if (n === 6) {
+        return { ...tune, typ: 'erfinden', stufe: 6, achse: l2,
+          prompt: kz ? 'Erfinde selbst: Färbe eine Figur und ihr Spiegelbild.' : 'Erfinde selbst: Spanne eine Figur und ihr Spiegelbild.',
+          given: { cells: [], polys: [], axes: [axisObj(l2)] }, spiegel: false,
+          werkzeuge: kz ? ['faerben', 'radieren'] : ['spannen', 'bewegen', 'radieren'], hilfen: ['spiegel3', 'falten'] };
+      }
+      return null;
+    }
+    // Spiegelachsen einer Figur
+    const wahr = G.symmetryAxes(k.start.poly, true, 1e-3);
+    if (n === 1 || n === 2) {
+      return { ...tune, typ: n === 1 ? 'eineAchse' : 'alleAchsen', stufe: n, wahr,
+        prompt: wahr.length === 0 ? 'Hat die Figur eine Spiegelachse? Zeichne sie ein – oder tippe auf „Keine Achse“.'
+          : n === 1 ? 'Finde eine Spiegelachse. Zeichne sie ein.' : 'Finde alle Spiegelachsen. Zeichne sie ein.',
+        given: { cells: [], polys: startPoly(), axes: [] }, spiegel: false, keineAchse: true,
+        werkzeuge: ['spiegel', 'bewegen', 'radieren'], hilfen: n === 2 ? ['spiegel3', 'falten', 'achse1'] : ['spiegel3', 'falten'] };
+    }
+    if (n === 3) {
+      return { ...tune, typ: 'veraendern', stufe: 3, zielAnzahl: k.aendern,
+        prompt: `Verändere die Figur. Sie soll ${achsen(k.aendern)} haben.`,
+        given: { cells: [], polys: startPoly(false), axes: [] }, spiegel: false,
+        werkzeuge: ['bewegen', 'spiegel', 'radieren'], hilfen: ['meineAchsen', 'falten'] };
+    }
+    if (n === 4) {
+      return { ...tune, typ: 'erfindenAchsen', stufe: 4, zielAnzahl: k.erfinden,
+        prompt: k.erfinden === 0 ? 'Erfinde eine Figur ohne Spiegelachse.' : `Erfinde eine Figur mit ${achsen(k.erfinden)}.`,
+        given: { cells: [], polys: [], axes: [] }, spiegel: false,
+        werkzeuge: ['spannen', 'bewegen', 'spiegel', 'radieren'], hilfen: ['meineAchsen', 'falten'] };
+    }
+    return null;
+  }
+
+  /**
+   * Prüfen. scene: {cells, polys, axes, keineAchse}; opts: {farbe (Farben beachten), tol}
+   * Ergebnis: { ok, text (erst auf Wunsch gezeigt), marks: {cells, pts, axes} }
+   */
+  function pruefen(st, scene, opts = {}) {
+    const tol = opts.tol ?? 0.05, farbe = opts.farbe !== false;
+    const marks = { cells: [], pts: [], axes: [] };
+    const own = o => !o.locked || o.hint;
+    const res = (ok, text) => ({ ok, text, marks });
+
+    switch (st.typ) {
+      case 'bild': {
+        if (st.ziel.cells) {
+          const mine = scene.cells.filter(c => own(c));
+          if (!mine.length) return res(false, 'Du hast noch kein Kästchen gefärbt.');
+          const zm = new Map(st.ziel.cells.map(c => [G.cellKey(c), c]));
+          const wrong = mine.filter(c => { const z = zm.get(G.cellKey(c)); return !z || (farbe && z.c !== c.c); });
+          const have = new Set(mine.map(G.cellKey));
+          const fehlt = st.ziel.cells.filter(c => !have.has(G.cellKey(c))).length;
+          marks.cells = wrong;
+          if (!wrong.length && !fehlt) return res(true, '');
+          const t = [];
+          if (wrong.length) t.push(wrong.length === 1 ? 'Ein Kästchen passt noch nicht (orange markiert).' : `${wrong.length} Kästchen passen noch nicht (orange markiert).`);
+          if (fehlt) t.push(fehlt === 1 ? 'Es fehlt noch ein Kästchen.' : `Es fehlen noch ${fehlt} Kästchen.`);
+          return res(false, t.join(' '));
+        }
+        const figs = scene.polys.filter(p => own(p) && p.pts.length >= 2);
+        if (!figs.length) return res(false, 'Du hast noch keine Figur gespannt.');
+        const f = figs[figs.length - 1], z = st.ziel.poly;
+        const cmp = G.compareFigures(f.pts, z, true, tol);
+        if (cmp === 'gleich' && f.closed) return res(true, '');
+        marks.pts = f.pts.filter(p => !z.some(q => G.dist(p, q) <= tol));
+        if (!f.closed) return res(false, 'Deine Figur ist noch nicht geschlossen. Tippe zum Schluss auf die erste Ecke.');
+        if (cmp === 'eckenGleich') return res(false, 'Alle Ecken stimmen. Verbinde sie in derselben Reihenfolge wie bei der Figur.');
+        if (cmp === 'anzahl' && !marks.pts.length) return res(false, `Deine Figur hat ${G.cleanPolygon(f.pts).length} Ecken. Das Spiegelbild hat ${z.length}.`);
+        return res(false, marks.pts.length === 1 ? 'Eine Ecke passt noch nicht (orange markiert).' : `${marks.pts.length} Ecken passen noch nicht (orange markiert).`);
+      }
+      case 'achseFinden': {
+        const axs = scene.axes.filter(own);
+        if (!axs.length) return res(false, 'Du hast noch keine Spiegelachse eingezeichnet.');
+        const l = axs[axs.length - 1];
+        const ok = scene.cells.length
+          ? G.asymmetricCells(scene.cells, l, farbe).length === 0
+          : G.asymmetricPolys(scene.polys, l, tol).length === 0;
+        if (ok) return res(true, '');
+        marks.axes = [l];
+        return res(false, 'Diese Achse passt noch nicht. Liegen Figur und Spiegelbild gleich weit von ihr entfernt?');
+      }
+      case 'fehler': {
+        const l = st.achse;
+        const wrong = G.asymmetricCells(scene.cells, l, farbe);
+        if (scene.cells.length) {
+          marks.cells = wrong;
+          if (!wrong.length && scene.cells.length >= st.mindestens) return res(true, '');
+          if (!wrong.length) return res(false, 'Jetzt passt alles zusammen – aber es sind zu wenige Kästchen übrig.');
+          return res(false, wrong.length === 1 ? 'Ein Kästchen hat noch keinen passenden Spiegelpartner (orange markiert).' : `${wrong.length} Kästchen haben noch keinen passenden Spiegelpartner (orange markiert).`);
+        }
+        const bad = G.asymmetricPolys(scene.polys, l, tol);
+        if (!bad.length && scene.polys.length >= st.mindestens) return res(true, '');
+        marks.pts = bad.flatMap(p => p.pts.filter(q => !scene.polys.some(o => o !== p && o.pts.some(r => G.dist(r, G.reflect(q, l)) <= tol))));
+        return res(false, 'Figur und Spiegelbild passen noch nicht zusammen (orange markiert).');
+      }
+      case 'erfinden': {
+        const l = st.achse;
+        if (scene.cells.length || st.mat === 'kaestchen') {
+          if (scene.cells.length < 2) return res(false, 'Färbe zuerst eine Figur.');
+          const sides = new Set(scene.cells.map(c => G.side(G.cellCenter(c), l)));
+          const wrong = G.asymmetricCells(scene.cells, l, farbe);
+          marks.cells = wrong;
+          if (!wrong.length && (sides.has(1) && sides.has(-1))) return res(true, '');
+          if (!wrong.length) return res(false, 'Färbe auf beiden Seiten der Spiegelachse.');
+          return res(false, 'Die orange markierten Kästchen haben noch kein passendes Spiegelbild.');
+        }
+        const figs = scene.polys.filter(p => p.closed && p.pts.length >= 3);
+        if (!figs.length) return res(false, 'Spanne zuerst eine Figur und schließe sie.');
+        const bad = G.asymmetricPolys(figs, l, tol);
+        if (!bad.length) return res(true, '');
+        marks.pts = bad.flatMap(p => p.pts);
+        return res(false, 'Die orange markierte Figur hat noch kein passendes Spiegelbild.');
+      }
+      case 'eineAchse':
+      case 'alleAchsen': {
+        const axs = scene.axes.filter(own), wahr = st.wahr;
+        if (wahr.length === 0) {
+          if (scene.keineAchse && !axs.length) return res(true, '');
+          marks.axes = axs;
+          return res(false, axs.length ? 'Prüfe deine Achse mit dem Spiegel oder durch Falten.' : 'Zeichne eine Spiegelachse ein oder tippe auf „Keine Achse“.');
+        }
+        if (scene.keineAchse && !axs.length) return res(false, 'Schau noch einmal genau hin. Probiere es mit dem Spiegel.');
+        if (!axs.length) return res(false, 'Du hast noch keine Spiegelachse eingezeichnet.');
+        const falsch = axs.filter(a => !wahr.some(w => G.sameLine(w, a, Math.max(tol, 0.05) * 3, 2)));
+        const gefunden = wahr.filter(w => axs.some(a => G.sameLine(w, a, Math.max(tol, 0.05) * 3, 2)));
+        marks.axes = falsch;
+        if (falsch.length) return res(false, falsch.length === 1 ? 'Eine Achse passt noch nicht (orange markiert).' : `${falsch.length} Achsen passen noch nicht (orange markiert).`);
+        if (st.typ === 'eineAchse' || gefunden.length === wahr.length) return res(true, '');
+        const f = wahr.length - gefunden.length;
+        return res(false, f === 1 ? 'Deine Achsen stimmen. Es fehlt noch eine.' : `Deine Achsen stimmen. Es fehlen noch ${f}.`);
+      }
+      case 'veraendern':
+      case 'erfindenAchsen': {
+        const figs = scene.polys.filter(p => p.closed && p.pts.length >= 3);
+        if (!figs.length) return res(false, 'Spanne zuerst eine Figur und schließe sie.');
+        const f = figs[figs.length - 1];
+        const hat = G.symmetryAxes(f.pts, true, opts.freiTol ?? 1e-3).length;
+        if (hat === st.zielAnzahl) return res(true, '');
+        return res(false, `Deine Figur hat ${achsen(hat).replace('genau ', '')}.`);
+      }
+    }
+    return res(false, '');
+  }
+
+  return { KARTEN, LEITER, stufe, pruefen, axisOf, diagonalAxis, mirrorStart, achsen };
+})();
+</script>
+<script id="board">
+/* ===== Darstellung und Arbeitsfläche ===== */
+const FARBEN = { b: '#2F6FDE', g: '#1E9E6A', y: '#E3A812', p: '#8A4FD8', n: '#8B5A2B', k: '#4A5668' };
+const FARBNAMEN = { b: 'Blau', g: 'Grün', y: 'Gelb', p: 'Lila', n: 'Braun', k: 'Grau' };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const f1 = n => (Math.round(n * 10) / 10).toString().replace('.', ',');
+const clone = o => JSON.parse(JSON.stringify(o));
+const BUCHST = i => String.fromCharCode(65 + (i % 26)) + (i >= 26 ? Math.floor(i / 26) : '');
+
+function leereSzene(W, H) { return { W, H, cells: [], polys: [], axes: [], mirror: false, keineAchse: false }; }
+
+/** Spiegelbilder: alle Kästchen und Figuren an allen Achsen (in Aufgaben nur die vorgegebenen). */
+function spiegelbilder(sc, nurVorgegeben) {
+  const out = { cells: [], polys: [] };
+  if (!sc.mirror) return out;
+  for (const ax of sc.axes) {
+    for (const c of sc.cells) if (!nurVorgegeben || (c.locked && !c.hint)) out.cells.push({ c, pts: Geo.cellCorners(c).map(p => Geo.reflect(p, ax)), ax });
+    for (const p of sc.polys) if (!nurVorgegeben || p.locked) out.polys.push({ p, pts: p.pts.map(q => Geo.reflect(q, ax)), ax });
+  }
+  return out;
+}
+
+/**
+ * SVG-Inhalt einer Szene. o: { k: Welteinheiten pro Bildschirmpixel, view, interactive, sel, marks, hintAxes,
+ *   ghostPts, fold, draft, axisStart, hover, nurVorgegeben, einfarbig, thumb }
+ */
+function zeichneSzene(sc, o = {}) {
+  const k = o.k || 0.03, v = o.view || {}, W = sc.W, H = sc.H, out = [];
+  const col = c => o.einfarbig ? FARBEN.b : (FARBEN[c] || c || FARBEN.b);
+  const ptsAttr = ps => ps.map(p => `${+p.x.toFixed(4)},${+p.y.toFixed(4)}`).join(' ');
+  const box = { x: -0.5, y: -0.5, w: W + 1, h: H + 1 };
+  out.push(`<rect class="paper" x="0" y="0" width="${W}" height="${H}" rx="${o.thumb ? 0.15 : 0.12}"/>`);
+  if (v.grid !== false) {
+    let g = '';
+    for (let x = 1; x < W; x++) g += `M${x} 0V${H}`;
+    for (let y = 1; y < H; y++) g += `M0 ${y}H${W}`;
+    out.push(`<path class="grid" d="${g}" vector-effect="non-scaling-stroke"/>`);
+  }
+  if (v.snap && !o.thumb && o.showPegs) {
+    let d = '';
+    for (let x = 0; x <= W; x++) for (let y = 0; y <= H; y++) d += `M${x} ${y}h0`;
+    out.push(`<path class="pegs" d="${d}" stroke-width="${5 * k}"/>`);
+  }
+  // Fold: welche Objekte klappen gerade?
+  const F = o.fold;
+  const folds = obj => F && obj && F.set.has(obj);
+  const foldPt = p => { const s = Geo.sideVal(p, F.axis), n = Geo.unit(Geo.perp(Geo.sub(F.axis.b, F.axis.a))); return Geo.add(p, Geo.mul(n, s * (Math.cos(Math.PI * F.t) - 1))); };
+
+  // Spiegelbilder
+  const img = spiegelbilder(sc, o.nurVorgegeben);
+  for (const m of img.cells) out.push(`<polygon class="cell img" points="${ptsAttr(m.pts)}" style="--c:${col(m.c.c)}" vector-effect="non-scaling-stroke"/>`);
+  for (const m of img.polys) out.push(m.p.closed && m.pts.length > 2
+    ? `<polygon class="fig img" points="${ptsAttr(m.pts)}" style="--c:${col(m.p.c)}"/>`
+    : `<polyline class="fig img open" points="${ptsAttr(m.pts)}" style="--c:${col(m.p.c)}"/>`);
+  // Kästchen
+  for (const c of sc.cells) {
+    out.push(`<rect class="cell${c.locked && !c.hint ? ' locked' : ''}${folds(c) ? ' folding' : ''}" x="${c.x}" y="${c.y}" width="1" height="1" style="--c:${col(c.c)}"/>`);
+    if (c.hint) out.push(`<circle class="hint-dot" cx="${c.x + 0.5}" cy="${c.y + 0.5}" r="0.13"/>`);
+  }
+  // Figuren
+  for (const p of sc.polys) {
+    const cls = `fig${p.locked ? ' locked' : ''}${o.sel === p.id ? ' sel' : ''}${folds(p) ? ' folding' : ''}`;
+    if (p.pts.length === 1) continue;
+    out.push(p.closed && p.pts.length > 2
+      ? `<polygon class="${cls}" points="${ptsAttr(p.pts)}" style="--c:${col(p.c)}"/>`
+      : `<polyline class="${cls} open" points="${ptsAttr(p.pts)}" style="--c:${col(p.c)}"/>`);
+  }
+  // Achsen
+  const ext = { x: 0, y: 0, w: W, h: H };
+  const marked = new Set(o.marks?.axes || []);
+  for (const ax of sc.axes) {
+    const seg = Geo.clipLine(ax, ext); if (!seg) continue;
+    out.push(`<line class="axis${ax.locked ? ' locked' : ''}${o.sel === ax.id ? ' sel' : ''}${marked.has(ax) ? ' marked' : ''}" x1="${seg[0].x}" y1="${seg[0].y}" x2="${seg[1].x}" y2="${seg[1].y}" vector-effect="non-scaling-stroke"/>`);
+  }
+  for (const ax of o.hintAxes || []) {
+    const seg = Geo.clipLine(ax, ext); if (!seg) continue;
+    out.push(`<line class="axis-hint" x1="${seg[0].x}" y1="${seg[0].y}" x2="${seg[1].x}" y2="${seg[1].y}" vector-effect="non-scaling-stroke"/>`);
+  }
+  // Prüfwerkzeuge: Lot, Abstand, Verbinden
+  if ((v.dist || v.perp || v.connect) && sc.axes.length) {
+    for (const ax of sc.axes) {
+      const n = Geo.unit(Geo.perp(Geo.sub(ax.b, ax.a))), u = Geo.unit(Geo.sub(ax.b, ax.a));
+      const gerade = Math.abs(u.x) < 1e-9 || Math.abs(u.y) < 1e-9;
+      const items = [];
+      for (const p of sc.polys) for (const q of p.pts) items.push({ p: q, d: Geo.distToLine(q, ax) });
+      if (gerade) for (const c of sc.cells) items.push({ p: Geo.cellCenter(c), d: Geo.distToLine(Geo.cellCenter(c), ax) - 0.5, cell: true });
+      for (const it of items) {
+        if (Geo.distToLine(it.p, ax) < 0.05) continue;
+        const Fp = Geo.foot(it.p, ax);
+        const P0 = it.cell ? Geo.add(it.p, Geo.mul(Geo.unit(Geo.sub(Fp, it.p)), 0.5)) : it.p;
+        if ((v.perp || v.dist) && Geo.dist(P0, Fp) > 0.02) out.push(`<line class="perp" x1="${P0.x}" y1="${P0.y}" x2="${Fp.x}" y2="${Fp.y}" vector-effect="non-scaling-stroke"/>`);
+        if (v.perp && Geo.distToLine(it.p, ax) > 0.45) {
+          const s = 0.28, sg = Geo.sideVal(it.p, ax) > 0 ? 1 : -1;
+          const A = Geo.add(Fp, Geo.mul(u, s)), C = Geo.add(Fp, Geo.mul(n, s * sg)), B = Geo.add(A, Geo.mul(n, s * sg));
+          out.push(`<polyline class="right" points="${ptsAttr([A, B, C])}" vector-effect="non-scaling-stroke"/>`);
+        }
+        if (v.dist) {
+          const M = it.cell ? it.p : Geo.mid(it.p, Fp), t = f1(it.d), w = (t.length * 9 + 14) * k, h = 22 * k;
+          out.push(`<g class="pill"><rect x="${M.x - w / 2}" y="${M.y - h / 2}" width="${w}" height="${h}" rx="${h / 2}"/><text x="${M.x}" y="${M.y}" font-size="${15 * k}">${t}</text></g>`);
+        }
+      }
+      if (v.connect && sc.mirror) {
+        for (const p of sc.polys) for (const q of p.pts) { const r = Geo.reflect(q, ax); out.push(`<line class="connect" x1="${q.x}" y1="${q.y}" x2="${r.x}" y2="${r.y}" vector-effect="non-scaling-stroke"/>`); }
+      }
+    }
+  }
+  // Ecken
+  let li = 0;
+  const names = [];
+  for (const p of sc.polys) {
+    p.pts.forEach((q, i) => {
+      const r = (p.pts.length === 1 ? 9 : 7) * k;
+      out.push(`<circle class="vtx${p.locked ? ' locked' : ''}${folds(p) ? ' folding' : ''}" cx="${q.x}" cy="${q.y}" r="${r}" style="--c:${col(p.c)}" vector-effect="non-scaling-stroke"/>`);
+      if (v.names) names.push(`<text class="name" x="${q.x + 11 * k}" y="${q.y - 11 * k}" font-size="${16 * k}">${BUCHST(li + i)}</text>`);
+    });
+    li += p.pts.length;
+  }
+  if (sc.mirror && v.names) {
+    const idx = new Map(); let j = 0; for (const p of sc.polys) { idx.set(p, j); j += p.pts.length; }
+    for (const m of img.polys) m.pts.forEach((q, i) => names.push(`<text class="name" x="${q.x + 11 * k}" y="${q.y - 11 * k}" font-size="${16 * k}">${BUCHST(idx.get(m.p) + i)}′</text>`));
+  }
+  for (const m of img.polys) m.pts.forEach(q => out.push(`<circle class="vtx img" cx="${q.x}" cy="${q.y}" r="${6 * k}" style="--c:${col(m.p.c)}" vector-effect="non-scaling-stroke"/>`));
+  out.push(...names);
+
+  // Faltbewegung
+  if (F) {
+    for (const obj of F.set) {
+      if (obj.pts) {
+        const ps = obj.pts.map(foldPt);
+        out.push(obj.closed && ps.length > 2 ? `<polygon class="fig flying" points="${ptsAttr(ps)}" style="--c:${col(obj.c)}"/>` : `<polyline class="fig flying open" points="${ptsAttr(ps)}" style="--c:${col(obj.c)}"/>`);
+      } else {
+        out.push(`<polygon class="cell flying" points="${ptsAttr(Geo.cellCorners(obj).map(foldPt))}" style="--c:${col(obj.c)}" vector-effect="non-scaling-stroke"/>`);
+      }
+    }
+  }
+  // Markierungen „Wo hakt es?“
+  for (const c of o.marks?.cells || []) out.push(`<rect class="mark" x="${c.x + 0.06}" y="${c.y + 0.06}" width="0.88" height="0.88" rx="0.08" vector-effect="non-scaling-stroke"/>`);
+  for (const p of o.marks?.pts || []) out.push(`<circle class="mark" cx="${p.x}" cy="${p.y}" r="${16 * k}" vector-effect="non-scaling-stroke"/>`);
+  for (const p of o.ghostPts || []) out.push(`<circle class="ghost" cx="${p.x}" cy="${p.y}" r="${13 * k}" vector-effect="non-scaling-stroke"/>`);
+  for (const p of o.midPts || []) out.push(`<circle class="midpt" cx="${p.x}" cy="${p.y}" r="${7 * k}"/>`);
+  for (const [a, b] of o.pairs || []) out.push(`<line class="connect" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" vector-effect="non-scaling-stroke"/>`);
+
+  // Entwurf, Anfasser
+  if (o.draft?.length) {
+    const ps = [...o.draft, ...(o.hover ? [o.hover] : [])];
+    out.push(`<polyline class="draft" points="${ptsAttr(ps)}" style="--c:${col(o.color)}" vector-effect="non-scaling-stroke"/>`);
+    o.draft.forEach((p, i) => out.push(`<circle class="draft-v${i === 0 && o.draft.length >= 3 ? ' close' : ''}" cx="${p.x}" cy="${p.y}" r="${(i === 0 && o.draft.length >= 3 ? 13 : 7) * k}" style="--c:${col(o.color)}" vector-effect="non-scaling-stroke"/>`));
+  }
+  if (o.axisStart) {
+    out.push(`<circle class="handle" cx="${o.axisStart.x}" cy="${o.axisStart.y}" r="${11 * k}" vector-effect="non-scaling-stroke"/>`);
+    if (o.hover && Geo.dist(o.hover, o.axisStart) > 0.2) { const seg = Geo.clipLine({ a: o.axisStart, b: o.hover }, ext); if (seg) out.push(`<line class="axis preview" x1="${seg[0].x}" y1="${seg[0].y}" x2="${seg[1].x}" y2="${seg[1].y}" vector-effect="non-scaling-stroke"/>`); }
+  }
+  if (o.interactive) for (const ax of sc.axes) if (!ax.locked) for (const p of [ax.a, ax.b]) out.push(`<circle class="handle" cx="${p.x}" cy="${p.y}" r="${12 * k}" vector-effect="non-scaling-stroke"/>`);
+  if (o.hover && o.showHover) out.push(`<circle class="snapdot" cx="${o.hover.x}" cy="${o.hover.y}" r="${5 * k}"/>`);
+  return out.join('');
+}
+
+/** Ausschnitt für Vorschaubilder: alles Sichtbare, Seitenverhältnis 3:2. */
+function ausschnitt(scenes) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const take = p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); };
+  for (const sc of scenes) {
+    sc.cells.forEach(c => Geo.cellCorners(c).forEach(take));
+    sc.polys.forEach(p => p.pts.forEach(take));
+    const img = spiegelbilder(sc, false); img.cells.forEach(m => m.pts.forEach(take)); img.polys.forEach(m => m.pts.forEach(take));
+    sc.axes.forEach(a => { take(a.a); take(a.b); });
+  }
+  const sc = scenes[0];
+  if (minX === Infinity) return { x: -0.3, y: -0.3, w: sc.W + 0.6, h: sc.H + 0.6 };
+  minX = Math.max(-0.3, minX - 1); minY = Math.max(-0.3, minY - 1); maxX = Math.min(sc.W + 0.3, maxX + 1); maxY = Math.min(sc.H + 0.3, maxY + 1);
+  let w = Math.max(maxX - minX, 6), h = Math.max(maxY - minY, 4);
+  if (w / h > 1.5) h = w / 1.5; else w = h * 1.5;
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  return { x: cx - w / 2, y: cy - h / 2, w, h };
+}
+function vorschau(sc, vb, o = {}) {
+  vb = vb || ausschnitt([sc]);
+  const k = vb.w / 320;
+  return `<svg class="thumb" viewBox="${vb.x} ${vb.y} ${vb.w} ${vb.h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Darstellung der Figur">${zeichneSzene(sc, { k, view: { grid: true, ...(o.view || {}) }, thumb: true, einfarbig: o.einfarbig })}</svg>`;
+}
+
+/**
+ * Interaktive Arbeitsfläche. cfg: {
+ *   host, getScene(), onBefore() (vor einer Änderung: Rückgängig-Stand), onChange() (nach jeder Änderung),
+ *   onAction(text) (am Ende einer Handlung: Protokoll), get(): {tool, color, view, maxAchsen, nurVorgegeben, overlays, einfarbig}
+ * }
+ */
+function Arbeitsflaeche(cfg) {
+  const host = cfg.host;
+  host.innerHTML = `<div class="btop"><div class="bslot"></div><div class="draftbar" role="status"></div></div><div class="bwrap"><svg class="board" role="application" aria-label="Arbeitsfläche"><g class="layer"></g></svg></div>`;
+  const svg = host.querySelector('svg'), layer = svg.querySelector('g'), bar = host.querySelector('.draftbar');
+  let draft = [], axisStart = null, hover = null, drag = null, pushed = false, sel = null, k = 0.03, fold = null;
+  const pointers = new Map(); let two = null;
+
+  const S = () => cfg.getScene();
+  const C = () => cfg.get();
+  const fit = () => {
+    const sc = S();
+    svg.setAttribute('viewBox', `-0.4 -0.4 ${sc.W + 0.8} ${sc.H + 0.8}`);
+    const m = svg.getScreenCTM(); if (m && m.a) k = 1 / m.a;
+  };
+  const ro = new ResizeObserver(() => { fit(); render(); }); ro.observe(svg);
+
+  function toWorld(e) {
+    const m = svg.getScreenCTM(); if (!m) return { x: 0, y: 0 };
+    const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+    const r = p.matrixTransform(m.inverse()); return { x: r.x, y: r.y };
+  }
+  const snap = p => C().view.snap ? { x: Math.round(p.x), y: Math.round(p.y) } : p;
+  const clampB = p => { const sc = S(); return { x: Math.min(sc.W, Math.max(0, p.x)), y: Math.min(sc.H, Math.max(0, p.y)) }; };
+  const R = () => 24 * k;
+  const before = () => { if (!pushed) { cfg.onBefore(); pushed = true; } };
+  const changed = () => { cfg.onChange(); render(); };
+  let pendingAction = null;
+  const act = t => { pendingAction = t; };
+
+  function hit(w) {
+    const sc = S(), r = R(), c = C();
+    for (const ax of [...sc.axes].reverse()) if (!ax.locked) {
+      if (Geo.dist(w, ax.a) < r) return { t: 'handle', ax, end: 'a' };
+      if (Geo.dist(w, ax.b) < r) return { t: 'handle', ax, end: 'b' };
+    }
+    for (const p of [...sc.polys].reverse()) if (!p.locked) for (let i = 0; i < p.pts.length; i++) if (Geo.dist(w, p.pts[i]) < r) return { t: 'vertex', p, i };
+    if (sc.mirror && !c.nurVorgegeben) for (const ax of sc.axes) for (const p of sc.polys) if (!p.locked) for (let i = 0; i < p.pts.length; i++) if (Geo.dist(w, Geo.reflect(p.pts[i], ax)) < r) return { t: 'image', p, i, ax };
+    for (const ax of [...sc.axes].reverse()) if (!ax.locked && Geo.distToLine(w, ax) < r * 0.7) return { t: 'axis', ax };
+    for (const p of [...sc.polys].reverse()) if (!p.locked) {
+      if (p.closed && p.pts.length > 2 && Geo.pointInPolygon(w, p.pts)) return { t: 'poly', p };
+      for (let i = 0; i < p.pts.length - (p.closed ? 0 : 1); i++) if (Geo.distToSegment(w, p.pts[i], p.pts[(i + 1) % p.pts.length]) < r * 0.6) return { t: 'poly', p };
+    }
+    return null;
+  }
+  const cellAt = w => { const sc = S(), x = Math.floor(w.x), y = Math.floor(w.y); return x >= 0 && y >= 0 && x < sc.W && y < sc.H ? { x, y } : null; };
+
+  function paintCell(cell) {
+    const sc = S(), i = sc.cells.findIndex(c => c.x === cell.x && c.y === cell.y), ex = sc.cells[i];
+    if (ex && ex.locked) return;
+    if (drag.mode === 'erase') { if (ex) { before(); sc.cells.splice(i, 1); drag.n++; changed(); } }
+    else if (!ex || ex.c !== drag.color) { before(); if (ex) ex.c = drag.color; else sc.cells.push({ x: cell.x, y: cell.y, c: drag.color }); drag.n++; changed(); }
+  }
+  function finishDraft() {
+    if (!draft.length) return;
+    const sc = S(); before();
+    sc.polys.push({ id: 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), pts: draft, c: C().color, closed: draft.length >= 3 });
+    const n = draft.length; draft = []; changed(); updateBar();
+    cfg.onAction(n >= 3 ? `Figur gespannt (${n} Ecken)` : n === 2 ? 'Strecke gespannt' : 'Punkt gesetzt'); pushed = false;
+  }
+  function addAxis(a, b) {
+    const sc = S(); before();
+    sc.axes.push({ id: 'a' + Date.now().toString(36), a, b });
+    const max = C().maxAchsen;
+    if (max) { const own = sc.axes.filter(x => !x.locked); if (own.length > max) sc.axes.splice(sc.axes.indexOf(own[0]), 1); }
+    sel = sc.axes[sc.axes.length - 1].id;
+    changed(); cfg.onAction('Spiegelachse gezeichnet'); pushed = false;
+  }
+  function updateBar() {
+    const t = C().tool;
+    if (t === 'spannen') {
+      bar.innerHTML = `<span>${draft.length === 0 ? 'Tippe die erste Ecke.' : draft.length < 3 ? 'Tippe die nächste Ecke.' : 'Tippe auf die erste Ecke, um die Figur zu schließen.'}</span>` +
+        (draft.length ? `<button class="btn sm" data-a="weg">Letzte Ecke weg</button><button class="btn sm primary" data-a="fertig">${draft.length >= 3 ? 'Figur schließen' : draft.length === 2 ? 'Als Strecke fertig' : 'Als Punkt fertig'}</button>` : '');
+    } else if (t === 'spiegel') {
+      bar.innerHTML = `<span>${axisStart ? 'Tippe den zweiten Punkt.' : 'Tippe zwei Punkte – oder ziehe eine Linie.'} Mit zwei Fingern drehst du die Achse.</span>`;
+    } else bar.innerHTML = '';
+  }
+  bar.addEventListener('click', e => {
+    const a = e.target.closest('button')?.dataset.a;
+    if (a === 'weg') { draft.pop(); render(); updateBar(); }
+    if (a === 'fertig') finishDraft();
+  });
+
+  function ownAxisForTwoFinger() {
+    const sc = S(), own = sc.axes.filter(a => !a.locked);
+    return own.find(a => a.id === sel) || own[own.length - 1];
+  }
+
+  svg.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    svg.setPointerCapture?.(e.pointerId);
+    pointers.set(e.pointerId, toWorld(e));
+    if (pointers.size === 2) {
+      const ax = ownAxisForTwoFinger();
+      draft = []; axisStart = null; drag = null;
+      if (ax) { const [p, q] = [...pointers.values()]; two = { ax, p0: p, q0: q, a0: { ...ax.a }, b0: { ...ax.b } }; before(); }
+      render(); return;
+    }
+    if (pointers.size > 2) return;
+    pushed = false; pendingAction = null;
+    const w = toWorld(e), ws = clampB(snap(w)), c = C(), h = hit(w);
+    switch (c.tool) {
+      case 'faerben': {
+        const cell = cellAt(w); if (!cell) break;
+        const sc = S(), ex = sc.cells.find(x => x.x === cell.x && x.y === cell.y);
+        drag = { kind: 'paint', mode: ex && !ex.locked && ex.c === c.color ? 'erase' : 'paint', color: c.color, n: 0 };
+        paintCell(cell); break;
+      }
+      case 'spannen': {
+        if (h && (h.t === 'vertex' || h.t === 'handle') && !draft.length) { startDrag(h, w); break; }
+        if (draft.length >= 3 && Geo.dist(w, draft[0]) < R()) { finishDraft(); break; }
+        if (draft.length && Geo.dist(ws, draft[draft.length - 1]) < 1e-6) break;
+        draft.push(ws); render(); updateBar(); break;
+      }
+      case 'spiegel': {
+        if (!axisStart && h && h.t === 'handle') { startDrag(h, w); break; }
+        if (!axisStart) { axisStart = ws; drag = { kind: 'newAxis', start: ws }; render(); updateBar(); }
+        else { if (Geo.dist(axisStart, ws) > 0.4) addAxis(axisStart, ws); axisStart = null; render(); updateBar(); }
+        break;
+      }
+      case 'bewegen': {
+        if (h) { startDrag(h, w); sel = h.ax ? h.ax.id : h.p.id; } else sel = null;
+        render(); break;
+      }
+      case 'radieren': {
+        const sc = S();
+        if (h && (h.t === 'axis' || h.t === 'handle')) { before(); sc.axes.splice(sc.axes.indexOf(h.ax), 1); changed(); cfg.onAction('Spiegelachse gelöscht'); }
+        else if (h && h.p && h.t !== 'image') { before(); sc.polys.splice(sc.polys.indexOf(h.p), 1); changed(); cfg.onAction('Figur gelöscht'); }
+        else { const cell = cellAt(w); if (cell) { const sc2 = S(), i = sc2.cells.findIndex(x => x.x === cell.x && x.y === cell.y && !x.locked); if (i >= 0) { drag = { kind: 'paint', mode: 'erase', n: 0 }; paintCell(cell); } } }
+        break;
+      }
+    }
+  });
+  function startDrag(h, w) {
+    if (h.t === 'handle') drag = { kind: 'handle', ax: h.ax, end: h.end };
+    if (h.t === 'vertex') drag = { kind: 'vertex', p: h.p, i: h.i };
+    if (h.t === 'image') drag = { kind: 'image', p: h.p, i: h.i, ax: h.ax };
+    if (h.t === 'poly') drag = { kind: 'poly', p: h.p, start: w, orig: h.p.pts.map(q => ({ ...q })) };
+    if (h.t === 'axis') drag = { kind: 'axis', ax: h.ax, start: w, orig: [{ ...h.ax.a }, { ...h.ax.b }] };
+  }
+  svg.addEventListener('pointermove', e => {
+    const w = toWorld(e);
+    if (pointers.has(e.pointerId)) pointers.set(e.pointerId, w);
+    if (two && pointers.size === 2) {
+      const [p, q] = [...pointers.values()];
+      const ang = Math.atan2(q.y - p.y, q.x - p.x) - Math.atan2(two.q0.y - two.p0.y, two.q0.x - two.p0.x);
+      const M0 = Geo.mid(two.p0, two.q0), M = Geo.mid(p, q);
+      const rot = r => { const d = Geo.sub(r, M0); return Geo.add(M, { x: d.x * Math.cos(ang) - d.y * Math.sin(ang), y: d.x * Math.sin(ang) + d.y * Math.cos(ang) }); };
+      two.ax.a = rot(two.a0); two.ax.b = rot(two.b0); changed(); return;
+    }
+    const c = C();
+    const nh = (c.tool === 'spannen' || c.tool === 'spiegel') ? clampB(snap(w)) : null;
+    if ((nh?.x !== hover?.x || nh?.y !== hover?.y) && (draft.length || axisStart || c.tool === 'spannen' || c.tool === 'spiegel')) { hover = nh; if (!drag) render(); }
+    if (!drag) return;
+    const ws = clampB(snap(w)), sc = S();
+    const dlt = () => { let d = Geo.sub(w, drag.start); if (c.view.snap) d = { x: Math.round(d.x), y: Math.round(d.y) }; return d; };
+    switch (drag.kind) {
+      case 'paint': { const cell = cellAt(w); if (cell) paintCell(cell); break; }
+      case 'vertex': if (Geo.dist(drag.p.pts[drag.i], ws) > 1e-6) { before(); drag.p.pts[drag.i] = ws; drag.moved = true; changed(); } break;
+      case 'image': { const o = clampB(snap(Geo.reflect(w, drag.ax))); if (Geo.dist(drag.p.pts[drag.i], o) > 1e-6) { before(); drag.p.pts[drag.i] = o; drag.moved = true; changed(); } break; }
+      case 'poly': { const d = dlt(); before(); drag.p.pts = drag.orig.map(q => Geo.add(q, d)); drag.moved = drag.moved || Geo.len(d) > 0; changed(); break; }
+      case 'handle': { const other = drag.end === 'a' ? drag.ax.b : drag.ax.a; if (Geo.dist(ws, other) > 0.4 && Geo.dist(ws, drag.ax[drag.end]) > 1e-6) { before(); drag.ax[drag.end] = ws; drag.moved = true; changed(); } break; }
+      case 'axis': { const d = dlt(); before(); drag.ax.a = Geo.add(drag.orig[0], d); drag.ax.b = Geo.add(drag.orig[1], d); drag.moved = drag.moved || Geo.len(d) > 0; changed(); break; }
+    }
+  });
+  function up(e) {
+    pointers.delete(e.pointerId);
+    if (two) {
+      if (pointers.size === 0) {
+        if (C().view.snap) { two.ax.a = clampB(snap(two.ax.a)); two.ax.b = clampB(snap(two.ax.b)); if (Geo.dist(two.ax.a, two.ax.b) < 0.5) { two.ax.a = two.a0; two.ax.b = two.b0; } }
+        changed(); cfg.onAction('Spiegelachse mit zwei Fingern gedreht'); two = null; pushed = false;
+      }
+      return;
+    }
+    const d = drag; drag = null;
+    if (!d) return;
+    if (d.kind === 'newAxis') {
+      const ws = clampB(snap(toWorld(e)));
+      if (Geo.dist(d.start, ws) > 0.8) { addAxis(d.start, ws); axisStart = null; render(); updateBar(); }
+      return;
+    }
+    if (d.kind === 'paint' && d.n) cfg.onAction(d.mode === 'erase' ? (d.n === 1 ? 'Kästchen gelöscht' : `${d.n} Kästchen gelöscht`) : (d.n === 1 ? 'Kästchen gefärbt' : `${d.n} Kästchen gefärbt`));
+    if (d.moved) cfg.onAction({ vertex: 'Ecke verschoben', image: 'Ecke im Spiegelbild verschoben', poly: 'Figur verschoben', handle: 'Spiegelachse gedreht', axis: 'Spiegelachse verschoben' }[d.kind]);
+    pushed = false;
+  }
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', up);
+  svg.addEventListener('pointerleave', () => { if (!drag) { hover = null; render(); } });
+
+  function render() {
+    const c = C();
+    if (!svg.getAttribute('viewBox')) fit();
+    layer.innerHTML = zeichneSzene(S(), {
+      k, view: c.view, interactive: true, sel, marks: c.overlays?.marks, hintAxes: c.overlays?.hintAxes, ghostPts: c.overlays?.ghostPts,
+      midPts: c.overlays?.midPts, pairs: c.overlays?.pairs, fold, draft, axisStart, hover, color: c.color, nurVorgegeben: c.nurVorgegeben,
+      einfarbig: c.einfarbig, showPegs: c.tool === 'spannen' || c.tool === 'spiegel', showHover: c.tool === 'spannen' || (c.tool === 'spiegel'),
+    });
+  }
+
+  /** Falten: eine Seite klappt über die Achse auf die andere Seite und wieder zurück. */
+  function falten(axis, set, done) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const t0 = performance.now(), T1 = reduce ? 1 : 700, HOLD = reduce ? 1600 : 1100, T2 = reduce ? 1 : 550;
+    const step = now => {
+      const dt = now - t0;
+      let t;
+      if (dt < T1) t = 0.5 - 0.5 * Math.cos(Math.PI * dt / T1);
+      else if (dt < T1 + HOLD) t = 1;
+      else if (dt < T1 + HOLD + T2) t = 0.5 + 0.5 * Math.cos(Math.PI * (dt - T1 - HOLD) / T2);
+      else { fold = null; render(); done && done(); return; }
+      fold = { axis, set, t }; render(); requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  return {
+    render: () => { fit(); render(); updateBar(); },
+    reset: () => { draft = []; axisStart = null; drag = null; sel = null; two = null; pointers.clear(); updateBar(); render(); },
+    falten, finishDraft,
+    get sel() { return sel; }, set sel(v) { sel = v; },
+    destroy: () => ro.disconnect(),
+    svg,
+  };
+}
+</script>
+<script id="app">
+/* ===== App: Werkstatt, Aufgaben, Forscherbuch, Lehrkraft ===== */
+(() => {
+  const KEY = 'spiegel-werkstatt:v1';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const FLAGS = () => ({ ohnePruefen: /ohne-pruefen/.test(location.hash) });
+
+  /* ---------- Speichern (nur lokal, abgesichert) ---------- */
+  let speicherbar = true;
+  function laden() {
+    try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; } catch { speicherbar = false; return null; }
+  }
+  const standard = () => ({
+    v: 1, werkstatt: { scene: leereSzene(22, 13), log: [], view: { dist: false, perp: false, connect: false } },
+    karten: [], eigene: [], verborgen: [], geschafft: {},
+    opt: { grid: true, snap: true, names: false, einfarbig: false, gross: false, theme: 'auto' },
+  });
+  let store = Object.assign(standard(), laden() || {});
+  store.opt = Object.assign(standard().opt, store.opt);
+  let speicherTimer = null, speicherFehler = false;
+  function speichern(sofort) {
+    clearTimeout(speicherTimer);
+    const run = () => {
+      try { localStorage.setItem(KEY, JSON.stringify(store)); if (speicherFehler) { speicherFehler = false; banner(null); } return true; }
+      catch (e) {
+        speicherFehler = true;
+        banner(speicherbar ? 'Speichern hat nicht geklappt: Der Speicher im Browser ist voll. Lösche alte Karten im Forscherbuch oder exportiere sie (Für Lehrkräfte → Daten).'
+          : 'Dieser Browser speichert nichts (z. B. privates Fenster). Was du festhältst, geht beim Schließen verloren.');
+        return false;
+      }
+    };
+    if (sofort) return run();
+    speicherTimer = setTimeout(run, 250); return true;
+  }
+  function banner(text) { const b = $('#banner'); b.hidden = !text; b.textContent = text || ''; }
+
+  /* ---------- Kleinigkeiten ---------- */
+  let toastT;
+  function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 3400); }
+  const ICON = {
+    faerben: '<path d="M4 20h6l10-10-6-6L4 14z"/><path d="M12 6l6 6"/><path d="M3.5 20.5h17" stroke-width="2.4" stroke="var(--brush, currentColor)"/>',
+    spannen: '<path d="M4.5 18.5L11 5l8.5 10z"/><circle cx="4.5" cy="18.5" r="1.9" fill="currentColor"/><circle cx="11" cy="5" r="1.9" fill="currentColor"/><circle cx="19.5" cy="15" r="1.9" fill="currentColor"/>',
+    spiegel: '<path d="M12 2.5v19" stroke="var(--axis)" stroke-width="2.6"/><circle cx="12" cy="4" r="2" fill="var(--axis)" stroke="none"/><circle cx="12" cy="20" r="2" fill="var(--axis)" stroke="none"/>',
+    bewegen: '<path d="M12 3v18M3 12h18"/><path d="M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/>',
+    radieren: '<path d="M8.5 19.5h11"/><path d="M4.6 14.2l8.6-8.6a1.8 1.8 0 012.5 0l2.7 2.7a1.8 1.8 0 010 2.5l-7.4 7.4a3 3 0 01-2.1.9H7.6l-3-3a1.4 1.4 0 010-1.9z"/>',
+    mirror: '<path d="M12 2.5v19" stroke="var(--axis)" stroke-width="2.4"/><path d="M9.5 7L4 16h5.5z" fill="currentColor" fill-opacity=".3"/><path d="M14.5 7L20 16h-5.5z" stroke-dasharray="2.4 2"/>',
+    zeichnen: '<path d="M12 2.5v19" stroke="var(--axis)" stroke-width="2.4"/><path d="M9.5 7L4 16h5.5z" fill="currentColor" fill-opacity=".3"/><path d="M14.5 7L20 16h-5.5z" fill="currentColor" fill-opacity=".3"/>',
+    falten: '<path d="M4 4h8v16H4z" fill="currentColor" fill-opacity=".25"/><path d="M12 4l8 3v14l-8-1" /><path d="M12 3v18" stroke="var(--axis)" stroke-width="2"/>',
+    pruefw: '<path d="M4 20V5"/><path d="M4 20h15"/><path d="M4 15h5v5"/><path d="M13 4l6 6" stroke-dasharray="2 2"/>',
+    undo: '<path d="M8.5 8.5H15a5 5 0 010 10h-4"/><path d="M11.5 5L8 8.5l3.5 3.5"/>',
+    weg: '<circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M7 18h5a3 3 0 000-6H12a3 3 0 010-6h5"/>',
+    neu: '<path d="M6 3.5h8.5l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7H18"/>',
+    fest: '<path d="M6 3.5h12v17l-6-4-6 4z"/><path d="M12 7.5v5M9.5 10h5"/>',
+    hilfe: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 114 2c-.9.6-1.6 1.1-1.6 2.2"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    open: '<path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
+    beamer: '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/>',
+    trash: '<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0014.5 4h-9A1.5 1.5 0 004 5.5v9A1.5 1.5 0 005.5 16H8"/>',
+    keine: '<circle cx="12" cy="12" r="8.5"/><path d="M6 18L18 6"/>',
+    play: '<path d="M7 5l12 7-12 7z" fill="currentColor"/>',
+    pause: '<path d="M7 5v14M17 5v14" stroke-width="3"/>',
+  };
+  const ic = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
+
+  const farbleiste = cs => `<div class="swatches" role="group" aria-label="Farbe">${cs.map(c => `<button class="sw" data-c="${c}" style="--c:${FARBEN[c]}" aria-label="${FARBNAMEN[c]}"></button>`).join('')}</div>`;
+
+  /* ---------- Protokoll (Schrittprotokoll mit Zeitstempel) ---------- */
+  function protokoll(log, text, scene) {
+    log.push({ t: Date.now(), a: text, s: JSON.stringify(scene) });
+    if (log.length > 400) log.splice(1, log.length - 400);
+  }
+  const mmss = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  /** Für Karten: höchstens 50 Schritte behalten (erster und letzter immer). */
+  function wegKurz(log) {
+    if (log.length <= 50) return log.slice();
+    const out = []; for (let i = 0; i < 50; i++) out.push(log[Math.round(i * (log.length - 1) / 49)]);
+    return out;
+  }
+
+  /* ---------- Optik ---------- */
+  function applyOpt() {
+    document.documentElement.dataset.theme = store.opt.theme === 'auto' ? '' : store.opt.theme;
+    if (store.opt.theme === 'auto') delete document.documentElement.dataset.theme;
+    document.body.classList.toggle('gross', !!store.opt.gross);
+  }
+
+  /* ---------- Navigation ---------- */
+  let view = 'werkstatt', aktiv = null;
+  function zeige(v) {
+    if (aktiv?.destroy) aktiv.destroy();
+    view = v;
+    $$('.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.v === v ? 'page' : 'false'));
+    $('#lehrkraftBtn').setAttribute('aria-current', v === 'lehrkraft' ? 'page' : 'false');
+    const m = document.createElement('div'); m.className = 'view'; $('#main').replaceChildren(m);
+    aktiv = ({ werkstatt: Werkstatt, aufgaben: AufgabenView, buch: Forscherbuch, lehrkraft: Lehrkraft })[v](m);
+    $('#beamerBtn').hidden = !(v === 'werkstatt' || v === 'aufgaben');
+    zaehler();
+  }
+  function zaehler() { const c = $('#buchCount'); c.textContent = store.karten.length; c.hidden = !store.karten.length; }
+
+  /* ============ WERKSTATT ============ */
+  const WTOOLS = [
+    ['faerben', 'Färben', 'F'], ['spannen', 'Spannen', 'S'], ['spiegel', 'Spiegelachse', 'A'], ['bewegen', 'Bewegen', 'B'], ['radieren', 'Radierer', 'R'],
+  ];
+  const FORSCHERFRAGEN = [
+    'Wie viele Spiegelachsen kann eine Figur haben?',
+    'Welche Vierecke haben mehr als eine Spiegelachse?',
+    'Kann eine Figur genau drei Spiegelachsen haben?',
+    'Spiegle ein Dreieck an allen Seiten. Welche Formen entstehen?',
+    'Wo muss der Spiegel stehen, damit ein Quadrat entsteht?',
+    'Was passiert mit dem Spiegelbild, wenn ich die Achse drehe?',
+  ];
+
+  function Werkstatt(root) {
+    const W = store.werkstatt;
+    if (!W.log.length) protokoll(W.log, 'Werkstatt geöffnet', W.scene);
+    const undo = [];
+    let tool = 'faerben', color = 'b', vorher = null, pruefOffen = false;
+    root.innerHTML = `
+      <div class="ws">
+        <aside class="tools" aria-label="Werkzeuge">
+          <div class="grp">${WTOOLS.map(([id, l, key]) => `<button class="tool" data-tool="${id}" title="${l} (Taste ${key})">${ic(id)}<span>${l}</span></button>`).join('')}</div>
+          <div class="grp">
+            <button class="tool toggle" data-a="mirror" title="Spiegel auf die Achse stellen">${ic('mirror')}<span>Spiegel</span></button>
+            <button class="tool" data-a="zeichnen" title="Spiegelbild abzeichnen">${ic('zeichnen')}<span>Abzeichnen</span></button>
+            <button class="tool" data-a="falten" title="An der Achse falten">${ic('falten')}<span>Falten</span></button>
+            <button class="tool toggle" data-a="pruefw" aria-expanded="false" title="Abstand, Lot, Verbinden">${ic('pruefw')}<span>Messen</span></button>
+          </div>
+          <div class="grp">
+            <button class="tool" data-a="undo">${ic('undo')}<span>Zurück</span></button>
+            <button class="tool" data-a="weg">${ic('weg')}<span>Mein Weg</span></button>
+            <button class="tool" data-a="neu">${ic('neu')}<span>Neu</span></button>
+          </div>
+        </aside>
+        <section class="stage">
+          <div class="boardhost"></div>
+          <div class="panel messen" hidden role="group" aria-label="Messen">
+            <label class="sw-row"><input type="checkbox" data-v="dist"> Abstand zur Achse</label>
+            <label class="sw-row"><input type="checkbox" data-v="perp"> Lot zur Achse</label>
+            <label class="sw-row"><input type="checkbox" data-v="connect"> Punkt und Spiegelpunkt verbinden</label>
+            <p class="small muted">Das Verbinden zeigt sich, wenn der Spiegel steht.</p>
+          </div>
+          <div class="float">
+            <span class="vorher" hidden>${ic('check')} Vorher gemerkt <button class="link" data-a="vorherweg">verwerfen</button></span>
+            <button class="btn" data-a="vorher">Vorher merken</button>
+            <button class="btn primary big" data-a="fest">${ic('fest')}Festhalten</button>
+          </div>
+        </section>
+      </div>`;
+    const host = $('.boardhost', root);
+    const board = Arbeitsflaeche({
+      host, getScene: () => W.scene,
+      onBefore: () => { undo.push(JSON.stringify(W.scene)); if (undo.length > 100) undo.shift(); },
+      onChange: () => { speichern(); sync(); },
+      onAction: t => { protokoll(W.log, t, W.scene); speichern(); },
+      get: () => ({ tool, color, view: { ...store.opt, ...W.view }, einfarbig: store.opt.einfarbig }),
+    });
+    $('.bslot', root).innerHTML = farbleiste(Object.keys(FARBEN));
+    function sync() {
+      $$('[data-tool]', root).forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === tool));
+      $$('.sw', root).forEach(b => b.setAttribute('aria-pressed', b.dataset.c === color));
+      root.style.setProperty('--brush', FARBEN[color]);
+      $('[data-a=mirror]', root).setAttribute('aria-pressed', !!W.scene.mirror);
+      $('[data-a=pruefw]', root).setAttribute('aria-pressed', pruefOffen || W.view.dist || W.view.perp || W.view.connect);
+      $('[data-a=pruefw]', root).setAttribute('aria-expanded', pruefOffen);
+      $('.messen', root).hidden = !pruefOffen;
+      $$('.messen input', root).forEach(i => i.checked = !!W.view[i.dataset.v]);
+      $('[data-a=undo]', root).disabled = !undo.length;
+      const leer = !W.scene.cells.length && !W.scene.polys.length && !W.scene.axes.length;
+      $('[data-a=fest]', root).disabled = leer;
+      $('[data-a=vorher]', root).hidden = !!vorher; $('.vorher', root).hidden = !vorher;
+      $('[data-a=vorher]', root).disabled = leer;
+    }
+    const setTool = t => { tool = t; board.reset(); sync(); };
+    root.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.tool) setTool(b.dataset.tool);
+      if (b.dataset.c) { color = b.dataset.c; const s = W.scene.polys.find(p => p.id === board.sel); if (s) { undo.push(JSON.stringify(W.scene)); s.c = color; protokoll(W.log, 'Farbe geändert', W.scene); speichern(); } if (tool !== 'spannen' && tool !== 'faerben' && !s) setTool('faerben'); sync(); board.render(); }
+      const a = b.dataset.a; if (!a) return;
+      if (a === 'mirror') { W.scene.mirror = !W.scene.mirror; protokoll(W.log, W.scene.mirror ? 'Spiegel aufgestellt' : 'Spiegel weggenommen', W.scene); if (W.scene.mirror && !W.scene.axes.length) toast('Zeichne eine Spiegelachse – dann zeigt der Spiegel das Spiegelbild.'); speichern(); sync(); board.render(); }
+      if (a === 'zeichnen') abzeichnen();
+      if (a === 'falten') werkstattFalten();
+      if (a === 'pruefw') { pruefOffen = !pruefOffen; sync(); }
+      if (a === 'undo') { const p = undo.pop(); if (p) { W.scene = JSON.parse(p); protokoll(W.log, 'Rückgängig', W.scene); board.reset(); speichern(); sync(); } }
+      if (a === 'weg') wegDialog(W.log, 'Mein Weg in der Werkstatt');
+      if (a === 'neu') { if (W.scene.cells.length || W.scene.polys.length || W.scene.axes.length) { undo.push(JSON.stringify(W.scene)); W.scene = leereSzene(W.scene.W, W.scene.H); protokoll(W.log, 'Neue Fläche', W.scene); board.reset(); speichern(); sync(); toast('Fläche geleert. „Zurück“ holt alles wieder.'); } }
+      if (a === 'vorher') { vorher = clone(W.scene); protokoll(W.log, 'Vorher gemerkt', W.scene); sync(); toast('Ausgangssituation gemerkt. Verändere etwas und halte dann fest.'); }
+      if (a === 'vorherweg') { vorher = null; sync(); }
+      if (a === 'fest') festhalten({ scene: W.scene, vorher, log: W.log, kontext: 'Werkstatt', onSaved: () => { vorher = null; sync(); } });
+    });
+    $('.messen', root).addEventListener('change', e => { const i = e.target; W.view[i.dataset.v] = i.checked; protokoll(W.log, `${i.parentElement.textContent.trim()} ${i.checked ? 'an' : 'aus'}`, W.scene); speichern(); sync(); board.render(); });
+    function abzeichnen() {
+      const sc = W.scene;
+      if (!sc.axes.length) { toast('Zeichne zuerst eine Spiegelachse.'); return; }
+      undo.push(JSON.stringify(sc));
+      let neu = 0, schraeg = 0;
+      const cells0 = sc.cells.slice(), polys0 = sc.polys.slice();
+      for (const ax of sc.axes) {
+        for (const c of cells0) {
+          const m = Geo.mirrorCell(c, ax);
+          if (!m) { schraeg++; continue; }
+          if (m.x < 0 || m.y < 0 || m.x >= sc.W || m.y >= sc.H) continue;
+          const ex = sc.cells.find(x => x.x === m.x && x.y === m.y);
+          if (!ex) { sc.cells.push(m); neu++; } else if (ex.c !== m.c && !ex.locked) { ex.c = m.c; neu++; }
+        }
+        for (const p of polys0) {
+          let pts = p.pts.map(q => Geo.reflect(q, ax));
+          pts = pts.map(q => (Math.abs(q.x - Math.round(q.x)) < 1e-6 && Math.abs(q.y - Math.round(q.y)) < 1e-6) ? { x: Math.round(q.x), y: Math.round(q.y) } : q);
+          if (sc.polys.some(o => o.closed === p.closed && Geo.compareFigures(o.pts, pts, p.closed, 1e-3) === 'gleich')) continue;
+          sc.polys.push({ id: uid('f'), pts, c: p.c, closed: p.closed }); neu++;
+        }
+      }
+      if (!neu) { undo.pop(); toast(schraeg ? 'Bei dieser schrägen Achse fallen die Kästchen nicht ins Raster.' : 'Das Spiegelbild ist schon da.'); return; }
+      protokoll(W.log, 'Spiegelbild abgezeichnet', sc); speichern(); sync(); board.render();
+      if (schraeg) toast('Einige Kästchen fallen bei dieser Achse nicht ins Raster – sie wurden nicht abgezeichnet.');
+    }
+    function werkstattFalten() {
+      const sc = W.scene, ax = sc.axes.find(a => a.id === board.sel) || sc.axes[sc.axes.length - 1];
+      if (!ax) { toast('Zum Falten brauchst du eine Spiegelachse.'); return; }
+      const selObj = sc.polys.find(p => p.id === board.sel);
+      let s = 0;
+      if (selObj) s = Geo.side(Geo.centroid(selObj.pts), ax);
+      if (!s) { let pos = 0, neg = 0; for (const c of sc.cells) Geo.side(Geo.cellCenter(c), ax) > 0 ? pos++ : neg++; for (const p of sc.polys) Geo.side(Geo.centroid(p.pts), ax) > 0 ? pos++ : neg++; s = pos >= neg ? 1 : -1; }
+      protokoll(W.log, 'An der Achse gefaltet', sc);
+      board.falten(ax, faltMenge(sc, ax, s, false));
+    }
+    window.addEventListener('keydown', onKey);
+    function onKey(e) {
+      if (dialogOffen() || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); $('[data-a=undo]', root).click(); return; }
+      const t = WTOOLS.find(x => x[2].toLowerCase() === e.key.toLowerCase()); if (t && !e.ctrlKey && !e.metaKey) setTool(t[0]);
+      if (e.key === 'Enter') board.finishDraft();
+      if (e.key === 'Escape') board.reset();
+      if ((e.key === 'Delete' || e.key === 'Backspace') && board.sel) {
+        const sc = W.scene; undo.push(JSON.stringify(sc));
+        sc.polys = sc.polys.filter(p => p.id !== board.sel); sc.axes = sc.axes.filter(a => a.id !== board.sel); board.sel = null;
+        protokoll(W.log, 'Gelöscht', sc); speichern(); sync(); board.render();
+      }
+    }
+    sync(); board.render();
+    return { board, destroy() { window.removeEventListener('keydown', onKey); board.destroy(); }, beamer: () => beamerBar(W, board, sync) };
+  }
+
+  /** Was beim Falten über die Achse klappt: Kästchen und Figurteile auf Seite s (Figuren werden an der Achse zerschnitten). */
+  function faltMenge(sc, ax, s, nurVorgegeben) {
+    const set = new Set();
+    for (const c of sc.cells) if ((!nurVorgegeben || c.locked) && Geo.side(Geo.cellCenter(c), ax) === s) set.add(c);
+    for (const p of sc.polys) {
+      if (nurVorgegeben && !p.locked) continue;
+      const teil = halbebene(p.pts, ax, s, p.closed);
+      if (teil.length >= 2) set.add({ pts: teil, closed: p.closed && teil.length > 2, c: p.c });
+    }
+    return set;
+  }
+  /** Sutherland–Hodgman: Teil eines Vielecks auf Seite s der Achse. */
+  function halbebene(pts, ax, s, closed) {
+    const inside = p => Geo.sideVal(p, ax) * s >= -1e-9;
+    const cut = (p, q) => { const a = Geo.sideVal(p, ax), b = Geo.sideVal(q, ax), t = a / (a - b); return Geo.add(p, Geo.mul(Geo.sub(q, p), t)); };
+    const out = [], n = pts.length, m = closed ? n : n - 1;
+    if (!closed && n === 1) return inside(pts[0]) ? pts.slice() : [];
+    for (let i = 0; i < m; i++) {
+      const p = pts[i], q = pts[(i + 1) % n];
+      if (inside(p)) { if (!out.length || Geo.dist(out[out.length - 1], p) > 1e-9) out.push(p); if (!inside(q)) out.push(cut(p, q)); }
+      else if (inside(q)) { out.push(cut(p, q)); }
+      if (!closed && i === m - 1 && inside(q)) out.push(q);
+    }
+    return out;
+  }
+
+  /* ============ BEAMER ============ */
+  let beamerAn = false;
+  function beamer(an) {
+    beamerAn = an;
+    document.body.classList.toggle('beamer', an);
+    try { if (an) document.documentElement.requestFullscreen?.(); else if (document.fullscreenElement) document.exitFullscreen?.(); } catch { }
+    $('#beamerExit').hidden = !an;
+    setTimeout(() => aktiv?.board?.render(), 60);
+  }
+
+  /* ============ AUFGABEN ============ */
+  const versuche = new Map();
+  let aufgabeId = 'k1', aufgabeStufe = 1;
+  const alleKarten = () => [...Aufgaben.KARTEN, ...store.eigene];
+  const sichtbar = () => alleKarten().filter(k => !store.verborgen.includes(k.id));
+  const HILFEN = {
+    spiegel3: { l: 'Spiegel kurz aufstellen', d: 'Das Spiegelbild ist 3 Sekunden zu sehen.' },
+    teil: { l: 'Ein Teil vorgeben', d: 'Ein richtiges Kästchen bzw. eine richtige Ecke wird gezeigt.' },
+    abstand: { l: 'Abstände zeigen', d: 'Abstand und Lot zur Spiegelachse werden eingeblendet.' },
+    falten: { l: 'Falten', d: 'Die Figur klappt über die Achse.' },
+    mitte: { l: 'Mitten zeigen', d: 'Zwei Punkte werden mit ihrem Spiegelpunkt verbunden, die Mitte ist markiert.' },
+    achse1: { l: 'Eine Achse zeigen', d: 'Eine fehlende Spiegelachse wird gezeigt.' },
+    meineAchsen: { l: 'Achsen meiner Figur', d: 'Die Spiegelachsen deiner Figur sind 3 Sekunden zu sehen.' },
+  };
+
+  function AufgabenView(root) {
+    let karte = sichtbar().find(k => k.id === aufgabeId) || sichtbar()[0];
+    if (!karte) { root.innerHTML = `<div class="page"><div class="empty"><p>Gerade sind keine Aufgaben freigegeben.</p><p class="muted">Im Bereich „Für Lehrkräfte“ lassen sich Aufgaben einblenden.</p></div></div>`; return {}; }
+    let st, att, tool, board, hilfeOffen = false;
+    root.innerHTML = `
+      <div class="tasks">
+        <aside class="tasklist" aria-label="Aufgaben"></aside>
+        <section class="taskmain">
+          <div class="taskhead">
+            <ol class="leiter" aria-label="Schwierigkeitsleiter"></ol>
+            <p class="prompt" aria-live="polite"></p>
+          </div>
+          <div class="ws inner">
+            <aside class="tools" aria-label="Werkzeuge"></aside>
+            <section class="stage"><div class="boardhost"></div><div class="panel hilfen" hidden></div></section>
+          </div>
+          <div class="checkbar" role="status" aria-live="polite"></div>
+        </section>
+      </div>`;
+    const host = $('.boardhost', root);
+
+    function key() { return karte.id + ':' + aufgabeStufe; }
+    function laden() {
+      st = Aufgaben.stufe(karte, aufgabeStufe);
+      if (!st) { aufgabeStufe = 1; st = Aufgaben.stufe(karte, 1); }
+      att = versuche.get(key());
+      if (!att) {
+        const sc = { ...leereSzene(st.W, st.H), cells: clone(st.given.cells), polys: clone(st.given.polys), axes: clone(st.given.axes), mirror: !!st.spiegel };
+        att = { scene: sc, undo: [], log: [], res: null, wo: false, hilfen: [], view: { dist: false, perp: false }, overlays: {}, tempMirror: false, done: false };
+        protokoll(att.log, `Aufgabe „${karte.titel}“, Stufe ${aufgabeStufe} begonnen`, sc);
+        versuche.set(key(), att);
+      }
+      tool = st.werkzeuge[0];
+      aufgabeId = karte.id;
+    }
+    const TL = { faerben: 'Färben', spannen: 'Spannen', spiegel: 'Spiegelachse', bewegen: 'Bewegen', radieren: 'Radierer' };
+    function aufbauen() {
+      laden();
+      // Liste
+      const gruppen = [
+        ['Spiegelbilder – Kästchen', k => k.fam === 'bild' && k.mat === 'kaestchen' && !k.eigenId],
+        ['Spiegelbilder – Geobrett', k => k.fam === 'bild' && k.mat === 'geobrett' && !k.eigenId],
+        ['Spiegelachsen finden', k => k.fam === 'achsen'],
+        ['Eigene Aufgaben', k => !!k.eigenId],
+      ];
+      $('.tasklist', root).innerHTML = gruppen.map(([t, f]) => {
+        const ks = sichtbar().filter(f); if (!ks.length) return '';
+        return `<div class="tgrp"><h3>${t}</h3>${ks.map(k => {
+          const n = Aufgaben.LEITER[k.fam].length, g = store.geschafft[k.id] || {};
+          return `<button class="titem" data-k="${k.id}" aria-current="${k.id === karte.id}"><span>${esc(k.titel)}<small>Klasse ${k.kl}</small></span><span class="dots" aria-label="${Object.keys(g).length} von ${n} Stufen geschafft">${Array.from({ length: n }, (_, i) => `<i class="${g[i + 1] ? 'on' : ''}"></i>`).join('')}</span></button>`;
+        }).join('')}</div>`;
+      }).join('') + `<select class="tselect" aria-label="Aufgabe wählen">${sichtbar().map(k => `<option value="${k.id}" ${k.id === karte.id ? 'selected' : ''}>${esc(k.titel)} (Kl. ${k.kl})</option>`).join('')}</select>`;
+      // Leiter
+      const g = store.geschafft[karte.id] || {};
+      $('.leiter', root).innerHTML = Aufgaben.LEITER[karte.fam].map(s => {
+        const ok = !!Aufgaben.stufe(karte, s.n);
+        return `<li><button data-stufe="${s.n}" aria-current="${s.n === aufgabeStufe}" ${ok ? '' : 'disabled'} title="${esc(s.info)}"><b>${s.n}</b><span>${s.kurz}</span>${g[s.n] ? ic('check') : ''}</button></li>`;
+      }).join('');
+      $('.prompt', root).textContent = st.prompt;
+      // Werkzeuge
+      $('.tools', root).innerHTML = `<div class="grp">${st.werkzeuge.map(t => `<button class="tool" data-tool="${t}">${ic(t)}<span>${TL[t]}</span></button>`).join('')}
+          ${st.keineAchse ? `<button class="tool toggle" data-a="keine">${ic('keine')}<span>Keine Achse</span></button>` : ''}</div>
+        <div class="grp">
+          <button class="tool" data-a="undo">${ic('undo')}<span>Zurück</span></button>
+          <button class="tool" data-a="weg">${ic('weg')}<span>Mein Weg</span></button>
+          <button class="tool" data-a="neu">${ic('neu')}<span>Neu</span></button>
+        </div>`;
+      if (board) board.destroy();
+      board = Arbeitsflaeche({
+        host, getScene: () => att.tempMirror ? { ...att.scene, mirror: true } : att.scene,
+        onBefore: () => { att.undo.push(JSON.stringify(att.scene)); },
+        onChange: () => { att.res = null; att.wo = false; att.overlays.ghostPts = att.overlays.ghostPts?.filter(p => !beruehrt(p)); delete att.overlays.temp; checkbar(); sync(); },
+        onAction: t => protokoll(att.log, t, att.scene),
+        get: () => ({
+          tool, color: farbe, view: { ...store.opt, ...att.view }, maxAchsen: st.maxAchsen, nurVorgegeben: true, einfarbig: store.opt.einfarbig,
+          overlays: { marks: att.wo && att.res ? att.res.marks : null, hintAxes: [...(att.overlays.hintAxes || []), ...(att.overlays.temp?.hintAxes || [])], ghostPts: att.overlays.ghostPts, midPts: att.overlays.midPts, pairs: att.overlays.pairs },
+        }),
+      });
+      if (!farbenFuer().includes(farbe)) farbe = farbenFuer()[0];
+      $('.bslot', root).innerHTML = st.mat === 'kaestchen' && ['bild', 'fehler', 'erfinden'].includes(st.typ) ? farbleiste(farbenFuer()) : '';
+      hilfeOffen = false;
+      checkbar(); sync(); board.render();
+    }
+    let farbe = 'b';
+    function farbenFuer() {
+      const used = [...new Set([...(karte.start.cells || []).map(c => c.c)])];
+      return store.opt.einfarbig || !used.length ? ['b', 'g', 'y', 'p', 'n'] : [...used, ...['b', 'g', 'y', 'p', 'n'].filter(c => !used.includes(c))].slice(0, Math.max(used.length + 1, 3));
+    }
+    const beruehrt = p => att.scene.polys.some(q => !q.locked && q.pts.some(r => Geo.dist(r, p) < 1e-6));
+    function sync() {
+      $$('[data-tool]', root).forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === tool));
+      $$('.sw', root).forEach(b => b.setAttribute('aria-pressed', b.dataset.c === farbe));
+      root.style.setProperty('--brush', FARBEN[farbe]);
+      const u = $('[data-a=undo]', root); if (u) u.disabled = !att.undo.length;
+      const kb = $('[data-a=keine]', root); if (kb) kb.setAttribute('aria-pressed', !!att.scene.keineAchse);
+    }
+    function checkbar() {
+      const f = FLAGS(), cb = $('.checkbar', root), r = f.ohnePruefen ? null : att.res;
+      const hilfenN = att.hilfen.length;
+      let text;
+      if (f.ohnePruefen) text = `<p class="muted">Prüfen ist ausgeschaltet. Besprecht eure Lösung miteinander.</p>`;
+      else if (!r) text = `<p class="muted">Wenn du fertig bist: „Prüfen“.</p>`;
+      else if (r.ok) text = `<p class="ok">${ic('check')} Passt!</p>`;
+      else text = `<p class="nok">Passt noch nicht.</p>${att.wo ? `<p class="detail">${esc(r.text)}</p>` : `<button class="btn sm" data-a="wo">Wo hakt es?</button>`}`;
+      const naechste = r?.ok && Aufgaben.stufe(karte, aufgabeStufe + 1);
+      cb.className = 'checkbar' + (r ? (r.ok ? ' is-ok' : ' is-nok') : '');
+      cb.innerHTML = `<div class="fb">${text}</div><div class="acts">
+        ${r?.ok && st.typ === 'erfinden' ? `<button class="btn" data-a="alsAufgabe">${ic('copy')}Als Aufgabe speichern</button>` : ''}
+        <button class="btn" data-a="fest">${ic('fest')}Festhalten</button>
+        <button class="btn" data-a="forschen">${ic('open')}Weiterforschen</button>
+        <button class="btn hilfe" data-a="hilfe" aria-expanded="${hilfeOffen}">${ic('hilfe')}Hilfe${hilfenN ? ` <span class="count">${hilfenN}</span>` : ''}</button>
+        ${naechste ? `<button class="btn primary big" data-a="weiter">Nächste Stufe</button>` : f.ohnePruefen ? '' : `<button class="btn primary big" data-a="pruefen">${ic('check')}Prüfen</button>`}
+      </div>`;
+      const hp = $('.hilfen', root);
+      hp.hidden = !hilfeOffen;
+      hp.innerHTML = `<p class="small muted">Wähle eine Hilfe. Sie wird in deinem Weg notiert.</p>` + st.hilfen.map(h => `<button class="hbtn" data-h="${h}"><b>${HILFEN[h].l}</b><span>${HILFEN[h].d}</span></button>`).join('');
+    }
+    function pruefen() {
+      const tol = store.opt.snap ? 0.05 : 0.3;
+      att.res = Aufgaben.pruefen(st, att.scene, { farbe: !store.opt.einfarbig, tol, freiTol: store.opt.snap ? 1e-3 : 0.25 });
+      att.wo = false;
+      protokoll(att.log, att.res.ok ? 'Geprüft: passt' : 'Geprüft: passt noch nicht', att.scene);
+      if (att.res.ok) { store.geschafft[karte.id] = { ...(store.geschafft[karte.id] || {}), [aufgabeStufe]: true }; speichern(); aufbauenListeNurPunkte(); }
+      checkbar(); board.render();
+    }
+    function aufbauenListeNurPunkte() {
+      const g = store.geschafft[karte.id] || {};
+      const it = $(`.titem[data-k="${karte.id}"] .dots`, root); if (it) $$('i', it).forEach((i, n) => i.className = g[n + 1] ? 'on' : '');
+      const sb = $(`.leiter [data-stufe="${aufgabeStufe}"]`, root); if (sb && !sb.querySelector('svg')) sb.insertAdjacentHTML('beforeend', ic('check'));
+    }
+    function hilfe(h) {
+      const sc = att.scene;
+      att.hilfen.push(h); protokoll(att.log, `Hilfe: ${HILFEN[h].l}`, sc);
+      hilfeOffen = false;
+      const ownAxes = sc.axes.filter(a => !a.locked);
+      const achse = st.achse || ownAxes[ownAxes.length - 1];
+      if (h === 'spiegel3') {
+        if (!sc.axes.length) { toast('Zeichne zuerst eine Spiegelachse. Dann kannst du sie mit dem Spiegel prüfen.'); att.hilfen.pop(); }
+        else { att.tempMirror = true; board.render(); setTimeout(() => { att.tempMirror = false; board.render(); }, 3000); }
+      }
+      if (h === 'teil') {
+        if (st.ziel.cells) {
+          const have = new Map(sc.cells.filter(c => !c.locked || c.hint).map(c => [Geo.cellKey(c), c]));
+          const z = st.ziel.cells.find(c => { const o = have.get(Geo.cellKey(c)); return !o || (!store.opt.einfarbig && o.c !== c.c); });
+          if (!z) { toast('Alle Kästchen sind schon da. Prüfe deine Lösung.'); att.hilfen.pop(); }
+          else { att.undo.push(JSON.stringify(sc)); sc.cells = sc.cells.filter(c => Geo.cellKey(c) !== Geo.cellKey(z)); sc.cells.push({ ...z, locked: true, hint: true }); }
+        } else {
+          const z = st.ziel.poly.find(p => !beruehrt(p) && !(att.overlays.ghostPts || []).some(q => Geo.dist(p, q) < 1e-6));
+          if (!z) { toast('Alle Ecken sind schon gezeigt.'); att.hilfen.pop(); }
+          else att.overlays.ghostPts = [...(att.overlays.ghostPts || []), z];
+        }
+      }
+      if (h === 'abstand') { att.view.dist = true; att.view.perp = true; }
+      if (h === 'falten') {
+        if (!achse) { toast('Zum Falten brauchst du eine Spiegelachse.'); att.hilfen.pop(); }
+        else {
+          const ref = sc.polys.find(p => p.locked) || sc.cells.find(c => c.locked) || sc.polys[0] || sc.cells[0];
+          if (!ref) { toast('Es gibt noch nichts zum Falten.'); att.hilfen.pop(); }
+          else {
+            let s = Geo.side(ref.pts ? Geo.centroid(ref.pts) : Geo.cellCenter(ref), achse);
+            if (!s) s = 1;
+            board.falten(achse, faltMenge(sc, achse, s, false));
+          }
+        }
+      }
+      if (h === 'mitte') {
+        const l = Aufgaben.axisOf(karte);
+        const src = karte.start.poly || karte.start.cells.map(Geo.cellCenter);
+        const pick = [src[0], src[Math.floor(src.length / 2)]];
+        att.overlays.pairs = pick.map(p => [p, Geo.reflect(p, l)]);
+        att.overlays.midPts = pick.map(p => Geo.mid(p, Geo.reflect(p, l)));
+      }
+      if (h === 'achse1') {
+        const fehlend = st.wahr.filter(w => !ownAxes.some(a => Geo.sameLine(w, a, 0.15, 2)) && !(att.overlays.hintAxes || []).includes(w));
+        if (fehlend.length < 2) { toast('Diese Hilfe gibt es nur, wenn noch mehrere Achsen fehlen.'); att.hilfen.pop(); }
+        else att.overlays.hintAxes = [...(att.overlays.hintAxes || []), fehlend[0]];
+      }
+      if (h === 'meineAchsen') {
+        const f = sc.polys.filter(p => p.closed && p.pts.length >= 3).pop();
+        if (!f) { toast('Spanne zuerst eine Figur und schließe sie.'); att.hilfen.pop(); }
+        else {
+          const ax = Geo.symmetryAxes(f.pts, true, store.opt.snap ? 1e-3 : 0.25);
+          if (!ax.length) toast('Deine Figur hat keine Spiegelachse.');
+          att.overlays.temp = { hintAxes: ax }; board.render();
+          setTimeout(() => { delete att.overlays.temp; board.render(); }, 3000);
+        }
+      }
+      checkbar(); board.render(); sync();
+    }
+    function alsAufgabe() {
+      const sc = att.scene, l = st.achse;
+      const ref = sc.cells[0] || sc.polys[0];
+      const s = Geo.side(ref.pts ? Geo.centroid(ref.pts) : Geo.cellCenter(ref), l) || 1;
+      dialog('Als Aufgabe speichern', `<p>Andere Kinder können deine Figur dann spiegeln – auf allen Stufen.</p>
+        <label class="field"><span class="lbl">Name der Aufgabe</span><input name="name" maxlength="40" value="Eigene Figur"><span class="small muted">Zum Beispiel „Rakete von MA“. Bitte nur ein Kürzel, keinen Namen.</span></label>
+        <div class="dlg-acts"><button type="button" class="btn" data-x="abbr">Abbrechen</button><button type="button" class="btn primary" data-x="ok">${ic('copy')}Speichern</button></div>`, dlg => {
+        dlg.addEventListener('click', e => {
+          const x = e.target.closest('button')?.dataset.x;
+          if (x === 'abbr') schliessen();
+          if (x === 'ok') { const kz = $('[name=name]', dlg).value.trim(); schliessen(); speichereEigene(kz, s); }
+        });
+      });
+    }
+    function speichereEigene(kz, s) {
+      const sc = att.scene, l = st.achse;
+      const start = st.mat === 'kaestchen'
+        ? { cells: sc.cells.filter(c => Geo.side(Geo.cellCenter(c), l) === s).map(({ x, y, c }) => ({ x, y, c })) }
+        : { poly: (sc.polys.find(p => p.closed && Geo.side(Geo.centroid(p.pts), l) === s) || sc.polys[0]).pts.map(p => ({ ...p })) };
+      const k = { id: uid('e'), eigenId: true, fam: 'bild', mat: st.mat, kl: karte.kl, titel: (kz || 'Eigene Figur').slice(0, 40), W: st.W, H: st.H,
+        achse: karte.achse, start, quelle: `Von einem Kind erfunden (aus „${karte.titel}“, Stufe 6)`, eigen: 'Kinderaufgabe' };
+      store.eigene.push(k); speichern(true);
+      protokoll(att.log, `Als Aufgabe gespeichert: ${k.titel}`, sc);
+      toast('Gespeichert. Die Aufgabe steht jetzt unter „Eigene Aufgaben“.');
+      aufbauen();
+    }
+    root.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.k) { karte = sichtbar().find(k => k.id === b.dataset.k); aufgabeStufe = 1; aufbauen(); return; }
+      if (b.dataset.stufe) { aufgabeStufe = +b.dataset.stufe; aufbauen(); return; }
+      if (b.dataset.tool) { tool = b.dataset.tool; board.reset(); sync(); return; }
+      if (b.dataset.c) { farbe = b.dataset.c; if (!['faerben'].includes(tool)) { tool = 'faerben'; board.reset(); } sync(); return; }
+      if (b.dataset.h) { hilfe(b.dataset.h); return; }
+      const a = b.dataset.a;
+      if (a === 'pruefen') pruefen();
+      if (a === 'wo') { att.wo = true; protokoll(att.log, 'Markierung angesehen („Wo hakt es?“)', att.scene); checkbar(); board.render(); }
+      if (a === 'weiter') { aufgabeStufe++; aufbauen(); }
+      if (a === 'hilfe') { hilfeOffen = !hilfeOffen; checkbar(); }
+      if (a === 'keine') { att.undo.push(JSON.stringify(att.scene)); att.scene.keineAchse = !att.scene.keineAchse; protokoll(att.log, att.scene.keineAchse ? '„Keine Achse“ gewählt' : '„Keine Achse“ zurückgenommen', att.scene); att.res = null; checkbar(); sync(); }
+      if (a === 'undo') { const p = att.undo.pop(); if (p) { att.scene = JSON.parse(p); att.res = null; protokoll(att.log, 'Rückgängig', att.scene); board.reset(); checkbar(); sync(); } }
+      if (a === 'neu') { versuche.delete(key()); aufbauen(); }
+      if (a === 'weg') wegDialog(att.log, `Mein Weg: ${karte.titel}, Stufe ${aufgabeStufe}`);
+      if (a === 'fest') festhalten({ scene: att.scene, log: att.log, kontext: `Aufgabe „${karte.titel}“, Stufe ${aufgabeStufe}`, hilfen: att.hilfen.length });
+      if (a === 'forschen') {
+        const ws = store.werkstatt;
+        const sc = clone(att.scene); sc.cells.forEach(c => { delete c.locked; delete c.hint; }); sc.polys.forEach(p => { delete p.locked; p.id = uid('f'); }); sc.axes.forEach(x => { delete x.locked; x.id = uid('a'); });
+        ws.scene = { ...leereSzene(22, 13), cells: sc.cells, polys: sc.polys, axes: sc.axes, mirror: sc.mirror };
+        protokoll(ws.log, `Aus Aufgabe „${karte.titel}“ übernommen`, ws.scene); speichern();
+        zeige('werkstatt'); toast('Die Aufgabe liegt jetzt in der Werkstatt. Forsche weiter!');
+      }
+      if (a === 'alsAufgabe') alsAufgabe();
+    });
+    root.addEventListener('change', e => { if (e.target.classList.contains('tselect')) { karte = sichtbar().find(k => k.id === e.target.value); aufgabeStufe = 1; aufbauen(); } });
+    window.addEventListener('hashchange', checkbar);
+    aufbauen();
+    return {
+      get board() { return board; },
+      destroy() { window.removeEventListener('hashchange', checkbar); board?.destroy(); },
+      beamer: () => beamerBar(att, board, () => { }),
+    };
+  }
+
+  /* Beamer: nur Spiegel, Falten, Raster */
+  function beamerBar(state, board) {
+    const bar = $('#beamerExit');
+    bar.innerHTML = `<button class="btn" data-b="mirror">${ic('mirror')}Spiegel</button><button class="btn" data-b="grid">Raster</button><button class="btn primary" data-b="ende">${ic('close')}Beamer beenden</button>`;
+    bar.onclick = e => {
+      const b = e.target.closest('button')?.dataset.b;
+      if (b === 'ende') beamer(false);
+      if (b === 'mirror' && state.scene) { state.scene.mirror = !state.scene.mirror; board.render(); }
+      if (b === 'grid') { store.opt.grid = !store.opt.grid; speichern(); board.render(); }
+    };
+  }
+
+  /* ============ FESTHALTEN ============ */
+  const ARTEN = ['Frage', 'Versuch', 'Vermutung', 'Entdeckung'];
+  const ART_TITEL = { Frage: 'Meine Frage', Versuch: 'Mein Versuch', Vermutung: 'Meine Vermutung', Entdeckung: 'Meine Entdeckung' };
+  function festhalten({ scene, vorher, log, kontext, hilfen, onSaved }) {
+    const snap = clone(scene);
+    snap.mirror = !!scene.mirror;
+    const fragen = [...new Set([...store.karten.map(k => k.frage).filter(Boolean), ...FORSCHERFRAGEN])];
+    const letzte = store.karten.length ? store.karten[store.karten.length - 1] : null;
+    let art = 'Entdeckung', mitVorher = !!vorher;
+    const vb = () => mitVorher && vorher ? ausschnitt([vorher, snap]) : null;
+    dialog('Festhalten', `
+      <div class="preview"></div>
+      ${vorher ? `<label class="check"><input type="checkbox" name="vorher" checked> Vorher und Nachher zeigen</label>` : ''}
+      <div class="field"><span class="lbl">Was ist das?</span><div class="chips">${ARTEN.map(a => `<button type="button" class="chip art-${a}" data-art="${a}" aria-pressed="${a === art}">${a}</button>`).join('')}</div></div>
+      <label class="field"><span class="lbl">Überschrift</span><input name="titel" maxlength="60" placeholder="${ART_TITEL[art]}"></label>
+      <label class="field"><span class="lbl">Was fällt dir auf? (kurz)</span><textarea name="notiz" rows="3" maxlength="400" placeholder="Ein Quadrat hat vier Spiegelachsen."></textarea></label>
+      <div class="row2">
+        <label class="field"><span class="lbl">Forscherfrage (wenn du willst)</span><input name="frage" list="fragenListe" maxlength="120" value="${esc(letzte?.frage || '')}" placeholder="Wie viele Spiegelachsen kann eine Figur haben?"><datalist id="fragenListe">${fragen.map(f => `<option value="${esc(f)}">`).join('')}</datalist></label>
+        <label class="field narrow"><span class="lbl">Kürzel</span><input name="kz" maxlength="8" value="${esc(letzte?.kz || '')}" placeholder="z. B. MA" autocomplete="off"><span class="small muted">Bitte nur ein Kürzel, keinen Namen.</span></label>
+      </div>
+      <label class="check"><input type="checkbox" name="weg" checked> Meinen Weg mitspeichern</label>
+      <div class="dlg-acts"><button type="button" class="btn" data-x="abbr">Abbrechen</button><button type="button" class="btn primary" data-x="ok">${ic('fest')}Im Forscherbuch festhalten</button></div>
+    `, dlg => {
+      const prev = () => { const v = vb(); $('.preview', dlg).innerHTML = (mitVorher && vorher ? `<figure>${vorschau(vorher, v, { einfarbig: store.opt.einfarbig })}<figcaption>Vorher</figcaption></figure><span class="arrow" aria-hidden="true">→</span>` : '') + `<figure>${vorschau(snap, v, { einfarbig: store.opt.einfarbig })}<figcaption>${mitVorher && vorher ? 'Nachher' : 'So sieht es jetzt aus'}</figcaption></figure>`; };
+      prev();
+      dlg.addEventListener('change', e => { if (e.target.name === 'vorher') { mitVorher = e.target.checked; prev(); } });
+      dlg.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.art) { art = b.dataset.art; $$('[data-art]', dlg).forEach(x => x.setAttribute('aria-pressed', x.dataset.art === art)); $('[name=titel]', dlg).placeholder = ART_TITEL[art]; }
+        if (b.dataset.x === 'abbr') schliessen();
+        if (b.dataset.x === 'ok') {
+          const val = n => $(`[name=${n}]`, dlg).value.trim();
+          const karte = { id: uid('c'), at: Date.now(), kz: val('kz'), art, titel: val('titel') || ART_TITEL[art], notiz: val('notiz'), frage: val('frage'),
+            scene: snap, vorher: mitVorher && vorher ? clone(vorher) : null, weg: $('[name=weg]', dlg).checked ? wegKurz(log) : null, kontext, hilfen: hilfen || 0, klasse: false };
+          store.karten.push(karte);
+          if (!speichern(true)) { store.karten.pop(); return; }
+          schliessen(); zaehler(); toast('Im Forscherbuch festgehalten.'); onSaved && onSaved();
+        }
+      });
+    });
+  }
+
+  /* ============ MEIN WEG (Wiedergabe) ============ */
+  function wegDialog(log, titel) {
+    if (!log?.length) { toast('Noch keine Schritte.'); return; }
+    let i = log.length - 1, timer = null;
+    const t0 = log[0].t;
+    dialog(titel, `
+      <div class="weg">
+        <div class="weg-bild"></div>
+        <div class="weg-ctrl"><button class="btn" data-w="play" aria-label="Abspielen">${ic('play')}</button><input type="range" min="0" max="${log.length - 1}" value="${i}" aria-label="Schritt"><span class="weg-zeit"></span></div>
+        <ol class="weg-liste">${log.map((e, n) => `<li><button data-i="${n}"><span class="zeit">${mmss(e.t - t0)}</span>${esc(e.a)}</button></li>`).join('')}</ol>
+        <p class="small muted">${log.length} Schritte, ${log.filter(e => e.a.startsWith('Hilfe')).length} Hilfen, ${log.filter(e => e.a.startsWith('Geprüft')).length}-mal geprüft.</p>
+      </div>`, dlg => {
+      const show = () => {
+        const sc = JSON.parse(log[i].s);
+        $('.weg-bild', dlg).innerHTML = vorschau(sc, { x: -0.3, y: -0.3, w: sc.W + 0.6, h: sc.H + 0.6 }, { einfarbig: store.opt.einfarbig });
+        $('input[type=range]', dlg).value = i;
+        $('.weg-zeit', dlg).textContent = `Schritt ${i + 1} von ${log.length}, ${mmss(log[i].t - t0)}`;
+        $$('.weg-liste button', dlg).forEach((b, n) => b.setAttribute('aria-current', n === i));
+        $(`.weg-liste [data-i="${i}"]`, dlg)?.scrollIntoView({ block: 'nearest' });
+      };
+      const stop = () => { clearInterval(timer); timer = null; $('[data-w=play]', dlg).innerHTML = ic('play'); };
+      show();
+      dlg.addEventListener('input', e => { if (e.target.type === 'range') { i = +e.target.value; stop(); show(); } });
+      dlg.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.i) { i = +b.dataset.i; stop(); show(); }
+        if (b.dataset.w === 'play') {
+          if (timer) return stop();
+          if (i >= log.length - 1) i = 0;
+          b.innerHTML = ic('pause');
+          timer = setInterval(() => { i++; show(); if (i >= log.length - 1) stop(); }, 700);
+        }
+      });
+      return () => clearInterval(timer);
+    });
+  }
+
+  /* ============ FORSCHERBUCH ============ */
+  function karteHTML(k, opts = {}) {
+    const vb = k.vorher ? ausschnitt([k.vorher, k.scene]) : null;
+    const datum = new Date(k.at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long' });
+    return `<article class="karte${opts.gross ? ' gross' : ''}" data-id="${k.id}">
+      <div class="kbild${k.vorher ? ' paar' : ''}">${k.vorher ? `<figure>${vorschau(k.vorher, vb, { einfarbig: store.opt.einfarbig })}<figcaption>Vorher</figcaption></figure><span class="arrow" aria-hidden="true">→</span>` : ''}<figure>${vorschau(k.scene, vb, { einfarbig: store.opt.einfarbig })}${k.vorher ? '<figcaption>Nachher</figcaption>' : ''}</figure></div>
+      <div class="kbody">
+        <div class="kmeta"><span class="chip st art-${k.art}">${opts.nr ? `${k.art} ${opts.nr}` : k.art}</span><span class="small muted">${[k.kz, datum].filter(Boolean).map(esc).join(', ')}</span></div>
+        <h3>${esc(k.titel)}</h3>
+        ${k.notiz ? `<p class="notiz">„${esc(k.notiz)}“</p>` : ''}
+        ${opts.lehr ? `<p class="small muted">${esc(k.kontext || '')}${k.hilfen ? `, ${k.hilfen} Hilfen` : ''}</p>` : ''}
+      </div>
+      ${opts.acts === false ? '' : `<div class="kacts">
+        <button class="btn sm" data-k="open">${ic('open')}Weiterforschen</button>
+        ${k.weg ? `<button class="btn sm" data-k="weg">${ic('weg')}Weg</button>` : ''}
+        <button class="btn sm" data-k="klasse" aria-pressed="${!!k.klasse}">${ic('beamer')}${k.klasse ? 'Für die Klasse ausgewählt' : 'Der Klasse zeigen'}</button>
+        ${opts.loeschen === false ? '' : `<button class="btn sm ghost" data-k="del" aria-label="Karte löschen">${ic('trash')}</button>`}
+      </div>`}
+    </article>`;
+  }
+  function karteAktion(e, rerender) {
+    const b = e.target.closest('[data-k]'); if (!b) return false;
+    const id = b.closest('.karte')?.dataset.id, k = store.karten.find(x => x.id === id); if (!k) return false;
+    const a = b.dataset.k;
+    if (a === 'open') {
+      const ws = store.werkstatt; const sc = clone(k.scene);
+      sc.cells.forEach(c => { delete c.locked; delete c.hint; }); sc.polys.forEach(p => { delete p.locked; p.id = uid('f'); }); sc.axes.forEach(x => { delete x.locked; x.id = uid('a'); });
+      ws.scene = { ...leereSzene(Math.max(22, sc.W), Math.max(13, sc.H)), cells: sc.cells, polys: sc.polys, axes: sc.axes, mirror: sc.mirror };
+      protokoll(ws.log, `Karte „${k.titel}“ geöffnet`, ws.scene); speichern(); zeige('werkstatt'); toast('Die Karte liegt in der Werkstatt.');
+    }
+    if (a === 'weg') wegDialog(k.weg, `Weg: ${k.titel}`);
+    if (a === 'klasse') { k.klasse = !k.klasse; speichern(); rerender(); }
+    if (a === 'del') {
+      if (b.dataset.sicher) { store.karten = store.karten.filter(x => x !== k); speichern(true); zaehler(); rerender(); }
+      else { b.dataset.sicher = '1'; b.classList.add('danger'); b.innerHTML = 'Wirklich löschen?'; }
+    }
+    return true;
+  }
+  function Forscherbuch(root) {
+    let wer = '';
+    const render = () => {
+      const kz = [...new Set(store.karten.map(k => k.kz).filter(Boolean))];
+      const list = store.karten.filter(k => !wer || k.kz === wer);
+      const gruppen = new Map(); list.forEach(k => { const f = k.frage || ''; gruppen.set(f, [...(gruppen.get(f) || []), k]); });
+      const sorted = [...gruppen.entries()].sort((a, b) => (a[0] === '') - (b[0] === ''));
+      root.innerHTML = `<div class="page">
+        <div class="phead"><h1>Mein Forscherbuch</h1>${kz.length ? `<label class="inl">Von <select class="wer"><option value="">allen</option>${kz.map(x => `<option ${x === wer ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>` : ''}</div>
+        ${list.length ? '' : `<div class="empty"><p>Hier sammelst du deine Entdeckungen.</p><p class="muted">In der Werkstatt und bei den Aufgaben hältst du mit „Festhalten“ fest, was dir auffällt – auch Fragen, Versuche und Vermutungen.</p></div>`}
+        ${sorted.map(([f, ks]) => `<section class="qgrp"><h2>${f ? esc(f) : 'Ohne Forscherfrage'}</h2><div class="karten">${ks.map((k, i) => karteHTML(k, { nr: f ? i + 1 : 0 })).join('')}</div></section>`).join('')}
+      </div>`;
+    };
+    root.addEventListener('click', e => karteAktion(e, render));
+    root.addEventListener('change', e => { if (e.target.classList.contains('wer')) { wer = e.target.value; render(); } });
+    render();
+    return {};
+  }
+
+  /* ============ LEHRKRAFT ============ */
+  const GESPRAECH = ['Was seht ihr?', 'Was ist gleich?', 'Was ist verschieden?', 'Welche Vermutung steckt dahinter?', 'Welche Lösung überrascht euch?', 'Welche Frage entsteht?'];
+  function Lehrkraft(root) {
+    let tab = 'galerie', nurKlasse = true, wahl = [];
+    const render = () => {
+      const liste = nurKlasse ? store.karten.filter(k => k.klasse) : store.karten;
+      root.innerHTML = `<div class="page">
+        <div class="phead"><h1>Für Lehrkräfte</h1><div class="seg" role="tablist">${[['galerie', 'Unsere Entdeckungen'], ['aufgaben', 'Aufgaben'], ['daten', 'Daten und Hinweise']].map(([k, l]) => `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div></div>
+        ${tab === 'galerie' ? `
+          <div class="gbar"><div class="seg sm"><button data-nk="1" aria-pressed="${nurKlasse}">Für die Klasse ausgewählt (${store.karten.filter(k => k.klasse).length})</button><button data-nk="0" aria-pressed="${!nurKlasse}">Alle Karten (${store.karten.length})</button></div>
+          <span class="small muted">${wahl.length ? `${wahl.length} zum Vergleich gewählt (höchstens 4)` : 'Wähle bis zu 4 Karten zum Vergleichen.'}</span>
+          <button class="btn primary" data-l="zeigen" ${wahl.length ? '' : 'disabled'}>${ic('beamer')}Nebeneinander zeigen</button></div>
+          ${liste.length ? '' : `<div class="empty"><p>${nurKlasse ? 'Noch keine Karten für die Klasse ausgewählt.' : 'Auf diesem Gerät gibt es noch keine Karten.'}</p><p class="muted">Kinder markieren Karten im Forscherbuch mit „Der Klasse zeigen“. Karten von anderen Geräten holst du über „Daten und Hinweise“ → Importieren.</p></div>`}
+          <div class="karten">${liste.map(k => `<div class="pick${wahl.includes(k.id) ? ' on' : ''}"><label class="check"><input type="checkbox" data-pick="${k.id}" ${wahl.includes(k.id) ? 'checked' : ''}> Vergleichen</label>${karteHTML(k, { lehr: true })}</div>`).join('')}</div>`
+        : tab === 'aufgaben' ? `
+          <p class="muted">Häkchen: Die Kinder sehen die Aufgabe. Die Leiter gilt für jede Aufgabe; die Kinder wählen die Stufe selbst.</p>
+          <div class="leiterinfo">${Object.entries(Aufgaben.LEITER).map(([f, l]) => `<div><h3>${f === 'bild' ? 'Spiegelbilder' : 'Spiegelachsen finden'}</h3><ol>${l.map(s => `<li><b>${s.kurz}:</b> ${esc(s.info)}</li>`).join('')}</ol></div>`).join('')}</div>
+          <div class="tbl"><table><thead><tr><th>Sichtbar</th><th>Aufgabe</th><th>Anlehnung</th><th>Selbst formuliert</th><th></th></tr></thead><tbody>
+          ${alleKarten().map(k => `<tr><td><input type="checkbox" data-vis="${k.id}" aria-label="${esc(k.titel)} sichtbar" ${store.verborgen.includes(k.id) ? '' : 'checked'}></td>
+            <td><div class="tthumb">${vorschau({ ...leereSzene(k.W, k.H), cells: k.start.cells || [], polys: k.start.poly ? [{ id: 's', pts: k.start.poly, c: 'b', closed: true }] : [], axes: k.achse ? [Aufgaben.axisOf(k)] : [] }, null, { einfarbig: store.opt.einfarbig })}</div><b>${esc(k.titel)}</b><br><span class="small muted">Klasse ${k.kl}</span></td>
+            <td class="small">${esc(k.quelle)}</td><td><span class="badge">${esc(k.eigen)}</span></td>
+            <td>${k.eigenId ? `<button class="btn sm ghost" data-del="${k.id}" aria-label="Aufgabe löschen">${ic('trash')}</button>` : ''}</td></tr>`).join('')}
+          </tbody></table></div>`
+        : `
+          <section class="info"><h2>Prüfen ausblenden</h2><p>Für Reflexionsphasen lässt sich der Prüfen-Knopf über den Link ausblenden: <code>${esc(location.href.split('#')[0])}#ohne-pruefen</code></p></section>
+          <section class="info"><h2>Karten übertragen</h2><p>Alles liegt nur in diesem Browser. Zum Sammeln auf einem Gerät: auf den Kinder-Tablets exportieren, am Lehrkraft-Gerät importieren.</p>
+            <div class="row"><button class="btn" data-l="export">Karten exportieren (Datei)</button><label class="btn">Karten importieren<input type="file" accept="application/json,.json" data-l="import" hidden></label></div></section>
+          <section class="info"><h2>Alles löschen</h2><p class="muted">${store.karten.length} Karten, ${store.eigene.length} eigene Aufgaben auf diesem Gerät.</p><button class="btn" data-l="wipe">${ic('trash')}Alles löschen …</button></section>`}
+      </div>`;
+    };
+    root.addEventListener('click', e => {
+      if (karteAktion(e, render)) return;
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.tab) { tab = b.dataset.tab; render(); }
+      if (b.dataset.nk) { nurKlasse = b.dataset.nk === '1'; render(); }
+      if (b.dataset.del) { store.eigene = store.eigene.filter(k => k.id !== b.dataset.del); speichern(); render(); }
+      const l = b.dataset.l;
+      if (l === 'zeigen') praesentation(store.karten.filter(k => wahl.includes(k.id)));
+      if (l === 'export') {
+        const blob = new Blob([JSON.stringify({ app: 'spiegel-werkstatt', v: 1, karten: store.karten, eigene: store.eigene }, null, 1)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `spiegel-werkstatt-karten-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      }
+      if (l === 'wipe') {
+        if (b.dataset.sicher) { const o = store.opt; store = standard(); store.opt = o; speichern(true); wahl = []; zaehler(); render(); toast('Alles gelöscht.'); }
+        else { b.dataset.sicher = '1'; b.classList.add('danger'); b.textContent = 'Ja, wirklich alles löschen'; }
+      }
+    });
+    root.addEventListener('change', e => {
+      const t = e.target;
+      if (t.dataset.pick) { const id = t.dataset.pick; wahl = wahl.includes(id) ? wahl.filter(x => x !== id) : wahl.length >= 4 ? (toast('Höchstens 4 Karten.'), wahl) : [...wahl, id]; render(); }
+      if (t.dataset.vis) { const id = t.dataset.vis; store.verborgen = t.checked ? store.verborgen.filter(x => x !== id) : [...store.verborgen, id]; speichern(); }
+      if (t.dataset.l === 'import' && t.files[0]) {
+        t.files[0].text().then(txt => {
+          try {
+            const d = JSON.parse(txt); if (d.app !== 'spiegel-werkstatt') throw 0;
+            const ids = new Set(store.karten.map(k => k.id)); const neu = (d.karten || []).filter(k => !ids.has(k.id));
+            const eids = new Set(store.eigene.map(k => k.id)); const neuE = (d.eigene || []).filter(k => !eids.has(k.id));
+            store.karten.push(...neu); store.eigene.push(...neuE);
+            if (!speichern(true)) { store.karten.splice(-neu.length); store.eigene.splice(-neuE.length || store.eigene.length); return; }
+            zaehler(); toast(`${neu.length} Karten und ${neuE.length} Aufgaben importiert.`); render();
+          } catch { toast('Diese Datei kommt nicht aus der Spiegel-Werkstatt.'); }
+        });
+      }
+    });
+    render();
+    return {};
+  }
+  function praesentation(karten) {
+    let q = 0, fokus = null;
+    const el = document.createElement('div'); el.className = 'present'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Unsere Entdeckungen');
+    const render = () => {
+      const zeig = fokus ? karten.filter(k => k.id === fokus) : karten;
+      el.innerHTML = `<div class="phd"><h2>Unsere Entdeckungen</h2><button class="talk" data-p="q">${GESPRAECH[q]}</button><button class="btn ghost" data-p="x" aria-label="Schließen">${ic('close')}</button></div>
+        <div class="pgrid n${zeig.length}">${zeig.map(k => `<div class="pitem" data-f="${k.id}">${karteHTML(k, { gross: true, acts: false })}</div>`).join('')}</div>
+        <p class="small muted pfoot">${fokus ? 'Tippen: zurück zum Vergleich.' : 'Tippe eine Karte an, um sie groß zu zeigen.'} Die Gesprächsfrage oben wechselt beim Antippen.</p>`;
+    };
+    const key = e => { if (e.key === 'Escape') { fokus ? (fokus = null, render()) : close(); } if (e.key === 'ArrowRight') { q = (q + 1) % GESPRAECH.length; render(); } };
+    const close = () => { el.remove(); window.removeEventListener('keydown', key); };
+    el.addEventListener('click', e => {
+      const p = e.target.closest('[data-p]')?.dataset.p;
+      if (p === 'q') { q = (q + 1) % GESPRAECH.length; render(); return; }
+      if (p === 'x') return close();
+      const f = e.target.closest('[data-f]'); if (f) { fokus = fokus ? null : f.dataset.f; render(); }
+    });
+    window.addEventListener('keydown', key);
+    document.body.appendChild(el); render();
+  }
+
+  /* ============ OPTIONEN ============ */
+  function optionen() {
+    const o = store.opt;
+    dialog('Optionen', `
+      <p class="small muted">Erleichterungen zum Zuschalten – für die ganze App.</p>
+      <label class="sw-row"><input type="checkbox" name="grid" ${o.grid ? 'checked' : ''}> Kästchenraster zeigen</label>
+      <label class="sw-row"><input type="checkbox" name="snap" ${o.snap ? 'checked' : ''}> Einrasten (Ecken und Achsen springen auf die Gitterpunkte)</label>
+      <label class="sw-row"><input type="checkbox" name="names" ${o.names ? 'checked' : ''}> Ecken benennen (A, B, A′ …)</label>
+      <label class="sw-row"><input type="checkbox" name="einfarbig" ${o.einfarbig ? 'checked' : ''}> Alles einfarbig (Farben zählen beim Prüfen nicht)</label>
+      <label class="sw-row"><input type="checkbox" name="gross" ${o.gross ? 'checked' : ''}> Große Knöpfe</label>
+      <div class="field"><span class="lbl">Darstellung</span><div class="seg sm">${[['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([v, l]) => `<button type="button" data-theme="${v}" aria-pressed="${o.theme === v}">${l}</button>`).join('')}</div></div>
+      <div class="dlg-acts"><button type="button" class="btn primary" data-x="ok">Fertig</button></div>`, dlg => {
+      dlg.addEventListener('change', e => { o[e.target.name] = e.target.checked; speichern(); applyOpt(); aktiv?.board?.render(); });
+      dlg.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.theme) { o.theme = b.dataset.theme; $$('[data-theme]', dlg).forEach(x => x.setAttribute('aria-pressed', x.dataset.theme === o.theme)); speichern(); applyOpt(); }
+        if (b.dataset.x) { schliessen(); if (view === 'aufgaben' || view === 'lehrkraft') zeige(view); }
+      });
+    });
+  }
+
+  /* ============ Dialog ============ */
+  let dlgCleanup = null, dlgFocus = null;
+  const dialogOffen = () => !$('#dlg').hidden;
+  function dialog(titel, html, init) {
+    const d = $('#dlg');
+    dlgFocus = document.activeElement;
+    d.innerHTML = `<div class="dlg" role="dialog" aria-modal="true" aria-label="${esc(titel)}"><div class="dlg-hd"><h2>${esc(titel)}</h2><button class="btn ghost" data-x="close" aria-label="Schließen">${ic('close')}</button></div>${html}</div>`;
+    d.hidden = false;
+    dlgCleanup = init ? init($('.dlg', d)) : null;
+    $('[data-x=close]', d).onclick = schliessen;
+    setTimeout(() => ($('input:not([type=checkbox]), textarea', d) || $('button', d))?.focus(), 30);
+  }
+  function schliessen() { const d = $('#dlg'); d.hidden = true; d.innerHTML = ''; if (typeof dlgCleanup === 'function') dlgCleanup(); dlgCleanup = null; dlgFocus?.focus?.(); }
+  $('#dlg').addEventListener('pointerdown', e => { if (e.target.id === 'dlg') schliessen(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && dialogOffen()) schliessen(); else if (e.key === 'Escape' && beamerAn) beamer(false); });
+
+  /* ============ Start ============ */
+  $$('.tabs button').forEach(b => b.addEventListener('click', () => zeige(b.dataset.v)));
+  $('#lehrkraftBtn').addEventListener('click', () => zeige('lehrkraft'));
+  $('#optBtn').addEventListener('click', optionen);
+  $('#beamerBtn').addEventListener('click', () => { aktiv?.beamer?.(); beamer(true); });
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && beamerAn) beamer(false); });
+  applyOpt();
+  if (!speicherbar) banner('Dieser Browser speichert nichts (z. B. privates Fenster). Was du festhältst, geht beim Schließen verloren.');
+  zeige('werkstatt');
+})();
+</script>
+</body>
+</html>
